@@ -21,7 +21,7 @@ type DrawCameraSystem struct {
 
 func NewDrawCameraSystem(screenBox *cm.BB) *DrawCameraSystem {
 	gr, _ := colorgrad.NewGradient().
-		HtmlColors("rgb(0, 0, 255)", "rgb(0, 255, 0)", "rgb(255, 132, 208)").
+		HtmlColors("rgb(255, 0, 179)", "rgb(255, 0, 0)", "rgb(255, 255, 255)").
 		Domain(0, 100).
 		Mode(colorgrad.BlendOklab).
 		Interpolation(colorgrad.InterpolationBasis).

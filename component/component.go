@@ -45,7 +45,7 @@ var DoorComp = donburi.NewComponentType[DoorData]()
 var CollectibleComp = donburi.NewComponentType[CollectibleData]()
 var AnimPlayerComp = donburi.NewComponentType[engine.AnimationPlayer]()
 var BodyComp = donburi.NewComponentType[cm.Body]()
-var AIComp = donburi.NewComponentType[AIData](AIData{Follow: false, FollowSpeed: 500, FollowDistance: 200})
+var AIComp = donburi.NewComponentType[AIData](AIData{Follow: false, FollowSpeed: 500, FollowDistance: 300})
 
 // Primitives
 var AccelComp = donburi.NewComponentType[float64](40.0)

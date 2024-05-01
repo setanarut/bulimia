@@ -47,7 +47,7 @@ func (hs *DrawHUDSystem) Update(world donburi.World, space *cm.Space) {
 func (hs *DrawHUDSystem) Draw(world donburi.World, space *cm.Space, scr *ebiten.Image) {
 
 	// debug
-	if true {
+	if false {
 		text.Draw(scr, fmt.Sprintf("%v", AnyKeyDown(ArrowKeys)), resources.FontFace, hs.textOptions)
 	}
 	// debug
@@ -66,7 +66,7 @@ func (hs *DrawHUDSystem) Draw(world donburi.World, space *cm.Space, scr *ebiten.
 	}
 
 	// inventory
-	if false {
+	if true {
 		if hs.player.Valid() {
 			playerInventory := *component.InventoryComp.Get(hs.player)
 			playerHealth := *component.HealthComp.Get(hs.player)
