@@ -13,7 +13,7 @@ func main() {
 
 	ebiten.SetScreenClearedEveryFrame(false)
 	ebiten.SetWindowSize(int(g.screenBox.R), int(g.screenBox.T))
-	gOpt := &ebiten.RunGameOptions{GraphicsLibrary: ebiten.GraphicsLibraryMetal}
+	gOpt := &ebiten.RunGameOptions{GraphicsLibrary: ebiten.GraphicsLibraryAuto}
 	// RUN
 	if err := ebiten.RunGameWithOptions(g, gOpt); err != nil {
 		log.Fatal(err)
