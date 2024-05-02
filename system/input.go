@@ -5,6 +5,7 @@ import (
 	"bulimia/component"
 	"bulimia/engine"
 	"bulimia/engine/cm"
+	"fmt"
 	"time"
 
 	eb "github.com/hajimehoshi/ebiten/v2"
@@ -21,6 +22,7 @@ const (
 
 var ArrowKeys []eb.Key = []eb.Key{28, 29, 30, 31}
 var WASDDirection cm.Vec2
+var WASDDirectionTEMP cm.Vec2
 var (
 	NoDirection    = cm.Vec2{0, 0}
 	RightDirection = cm.Vec2{1, 0}
@@ -217,18 +219,34 @@ func playerVelocityFunc(body *cm.Body, gravity cm.Vec2, damping, dt float64) {
 
 func UpdateWASDDirection() {
 	WASDDirection = cm.Vec2{}
-	if eb.IsKeyPressed(eb.KeyW) {
-		WASDDirection.Y += 1
+	if inpututil.IsKeyJustPressed(eb.KeyW) {
+		WASDDirectionTEMP.Y = 1
 	}
-	if eb.IsKeyPressed(eb.KeyS) {
-		WASDDirection.Y -= 1
+	if inpututil.IsKeyJustPressed(eb.KeyS) {
+		WASDDirectionTEMP.Y = -1
 	}
-	if eb.IsKeyPressed(eb.KeyA) {
-		WASDDirection.X -= 1
+	if inpututil.IsKeyJustPressed(eb.KeyA) {
+		WASDDirectionTEMP.X = -1
 	}
-	if eb.IsKeyPressed(eb.KeyD) {
-		WASDDirection.X += 1
+	if inpututil.IsKeyJustPressed(eb.KeyD) {
+		WASDDirectionTEMP.X = 1
 	}
+
+	if inpututil.IsKeyJustReleased(eb.KeyW) && WASDDirectionTEMP.Y > 0 {
+		fmt.Println("W")
+		WASDDirectionTEMP.Y = 0
+	}
+	if inpututil.IsKeyJustReleased(eb.KeyS) && WASDDirectionTEMP.Y < 0 {
+		WASDDirectionTEMP.Y = 0
+	}
+	if inpututil.IsKeyJustReleased(eb.KeyA) && WASDDirectionTEMP.X < 0 {
+		WASDDirectionTEMP.X = 0
+	}
+	if inpututil.IsKeyJustReleased(eb.KeyD) && WASDDirectionTEMP.X > 0 {
+		WASDDirectionTEMP.X = 0
+	}
+
+	WASDDirection = WASDDirectionTEMP
 }
 
 func AnyKeyDown(keys []eb.Key) bool {
