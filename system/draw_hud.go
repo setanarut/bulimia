@@ -48,7 +48,7 @@ func (hs *DrawHUDSystem) Draw(world donburi.World, space *cm.Space, scr *ebiten.
 
 	// debug
 	if false {
-		text.Draw(scr, fmt.Sprintf("%v", AnyKeyDown(ArrowKeys)), resources.FontFace, hs.textOptions)
+		text.Draw(scr, fmt.Sprintf("%v", Input.AnyKeyDown(28, 29, 30, 31)), resources.FontFace, hs.textOptions)
 	}
 	// debug
 	if false {
