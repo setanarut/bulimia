@@ -55,7 +55,7 @@ func (ds *DrawCameraSystem) Update(world donburi.World, space *cm.Space) {
 func (ds *DrawCameraSystem) Draw(world donburi.World, space *cm.Space, screen *ebiten.Image) {
 
 	// arka plan
-	screen.Fill(color.Gray{30})
+	screen.Fill(color.Gray{0})
 
 	component.WallTagComp.Each(world, func(e *donburi.Entry) {
 		body := component.BodyComp.Get(e)
@@ -91,7 +91,7 @@ func (ds *DrawCameraSystem) Draw(world donburi.World, space *cm.Space, screen *e
 		body := component.BodyComp.Get(entry)
 		animComp := component.AnimPlayerComp.Get(entry)
 		ds.updateGeoM(body, animComp.DrawOffset, animComp.DrawScaleX, animComp.DrawScaleY)
-		ds.entityDIO.ColorScale.ScaleWithColor(color.RGBA{43, 209, 192, 255})
+		ds.entityDIO.ColorScale.ScaleWithColor(color.RGBA{0, 255, 100, 255})
 		ds.cam.Draw(animComp.CurrentFrame, ds.entityDIO, screen)
 		ds.entityDIO.ColorScale.Reset()
 
@@ -120,7 +120,7 @@ func (ds *DrawCameraSystem) Draw(world donburi.World, space *cm.Space, screen *e
 	component.FoodTagComp.Each(world, func(e *donburi.Entry) {
 		body := component.BodyComp.Get(e)
 		animComp := component.AnimPlayerComp.Get(e)
-
+		ds.entityDIO.ColorScale.ScaleWithColor(color.RGBA{0, 255, 100, 255})
 		ds.updateGeoM(body, animComp.DrawOffset, animComp.DrawScaleX, animComp.DrawScaleY)
 		ds.cam.Draw(animComp.CurrentFrame, ds.entityDIO, screen)
 		ds.entityDIO.ColorScale.Reset()

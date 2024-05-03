@@ -66,11 +66,17 @@ func (sys *EntitySpawnSystem) Init(world donburi.World, space *cm.Space, scr *cm
 		// arche.DefaultKeyCollectible(i, world, space, engine.RandomPointInBB(Rooms[2], 20))
 	}
 
-	// adds trauma to the camera when the bomb is removed
 	world.OnRemove(func(world donburi.World, entity donburi.Entity) {
 		e := world.Entry(entity)
+
+		// adds trauma to the camera when the bomb is removed
 		if e.HasComponent(component.BombTagComp) {
 			sys.cam.AddTrauma(0.2)
+		}
+		// adds trauma to the camera when the bomb is removed
+		if e.HasComponent(component.EnemyTagComp) {
+			p := component.BodyComp.Get(e).Position()
+			arche.NewCollectibleEntity(component.Food, 10, -1, 10, world, space, p)
 		}
 
 	})

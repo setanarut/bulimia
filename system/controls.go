@@ -37,7 +37,7 @@ func (sys *PlayerControlSystem) Init(world donburi.World, space *cm.Space, Scree
 
 func (sys *PlayerControlSystem) Update(world donburi.World, space *cm.Space) {
 
-	// Input.UpdateArrowDirection()
+	// Input.UpdateJustArrowDirection()
 	Input.UpdateArrowDirection()
 	Input.UpdateWASDDirection()
 
@@ -121,6 +121,39 @@ func (sys *PlayerControlSystem) Update(world donburi.World, space *cm.Space) {
 			}
 		}
 
+		if inpututil.IsKeyJustReleased(ebiten.KeyArrowUp) {
+			playerAnimPlayer.SetState("up")
+		}
+		if inpututil.IsKeyJustReleased(ebiten.KeyArrowDown) {
+			playerAnimPlayer.SetState("down")
+		}
+		if inpututil.IsKeyJustReleased(ebiten.KeyArrowLeft) {
+			playerAnimPlayer.SetState("left")
+		}
+		if inpututil.IsKeyJustReleased(ebiten.KeyArrowRight) {
+			playerAnimPlayer.SetState("right")
+		}
+
+		if Input.ArrowDirection.Equal(engine.NoDirection) {
+
+			switch Input.WASDDirection {
+
+			case engine.RightDirection:
+				playerAnimPlayer.SetState("right")
+
+			case engine.LeftDirection:
+				playerAnimPlayer.SetState("left")
+
+			case engine.UpDirection:
+				playerAnimPlayer.SetState("up")
+
+			case engine.DownDirection:
+				playerAnimPlayer.SetState("down")
+
+			}
+
+		}
+
 		if inventory.Bombs > 0 {
 
 			// Bomba bırak
@@ -130,20 +163,6 @@ func (sys *PlayerControlSystem) Update(world donburi.World, space *cm.Space) {
 				inventory.Bombs -= 1
 			}
 
-		}
-
-		// Arrow keys 28, 29, 30, 31
-		if !Input.AnyKeyDown(28, 29, 30, 31) {
-			switch Input.WASDDirection {
-			case engine.RightDirection:
-				playerAnimPlayer.SetState("right")
-			case engine.LeftDirection:
-				playerAnimPlayer.SetState("left")
-			case engine.UpDirection:
-				playerAnimPlayer.SetState("up")
-			case engine.DownDirection:
-				playerAnimPlayer.SetState("down")
-			}
 		}
 
 	}
