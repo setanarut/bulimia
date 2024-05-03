@@ -16,40 +16,41 @@ var (
 )
 
 type InputManager struct {
-	WASDDirection      cm.Vec2
-	ArrowDirection     cm.Vec2
-	arrowDirectionTemp cm.Vec2
+	WASDDirection             cm.Vec2
+	ArrowDirection            cm.Vec2
+	ArrowDirectionTemp        cm.Vec2
+	LastPressedArrowDirection cm.Vec2
+	LastPressedWASDDirection  cm.Vec2
 }
 
 func (i *InputManager) UpdateJustArrowDirection() {
-	i.ArrowDirection = cm.Vec2{}
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
-		i.arrowDirectionTemp.Y = 1
+		i.ArrowDirectionTemp.Y = 1
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
-		i.arrowDirectionTemp.Y = -1
+		i.ArrowDirectionTemp.Y = -1
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowLeft) {
-		i.arrowDirectionTemp.X = -1
+		i.ArrowDirectionTemp.X = -1
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyArrowRight) {
-		i.arrowDirectionTemp.X = 1
+		i.ArrowDirectionTemp.X = 1
 	}
 
-	if inpututil.IsKeyJustReleased(ebiten.KeyArrowUp) && i.arrowDirectionTemp.Y > 0 {
-		i.arrowDirectionTemp.Y = 0
+	if inpututil.IsKeyJustReleased(ebiten.KeyArrowUp) && i.ArrowDirectionTemp.Y > 0 {
+		i.ArrowDirectionTemp.Y = 0
 	}
-	if inpututil.IsKeyJustReleased(ebiten.KeyArrowDown) && i.arrowDirectionTemp.Y < 0 {
-		i.arrowDirectionTemp.Y = 0
+	if inpututil.IsKeyJustReleased(ebiten.KeyArrowDown) && i.ArrowDirectionTemp.Y < 0 {
+		i.ArrowDirectionTemp.Y = 0
 	}
-	if inpututil.IsKeyJustReleased(ebiten.KeyArrowLeft) && i.arrowDirectionTemp.X < 0 {
-		i.arrowDirectionTemp.X = 0
+	if inpututil.IsKeyJustReleased(ebiten.KeyArrowLeft) && i.ArrowDirectionTemp.X < 0 {
+		i.ArrowDirectionTemp.X = 0
 	}
-	if inpututil.IsKeyJustReleased(ebiten.KeyArrowRight) && i.arrowDirectionTemp.X > 0 {
-		i.arrowDirectionTemp.X = 0
+	if inpututil.IsKeyJustReleased(ebiten.KeyArrowRight) && i.ArrowDirectionTemp.X > 0 {
+		i.ArrowDirectionTemp.X = 0
 	}
 
-	i.ArrowDirection = i.arrowDirectionTemp
+	i.ArrowDirection = i.ArrowDirectionTemp
 }
 func (i *InputManager) UpdateArrowDirection() {
 
@@ -66,7 +67,13 @@ func (i *InputManager) UpdateArrowDirection() {
 	if ebiten.IsKeyPressed(ebiten.KeyArrowRight) {
 		i.ArrowDirection.X += 1
 	}
+
+	if !i.ArrowDirection.Equal(NoDirection) {
+		i.LastPressedArrowDirection = i.ArrowDirection
+	}
+
 }
+
 func (i *InputManager) UpdateWASDDirection() {
 	i.WASDDirection = cm.Vec2{}
 	if ebiten.IsKeyPressed(ebiten.KeyW) {
@@ -80,6 +87,10 @@ func (i *InputManager) UpdateWASDDirection() {
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyD) {
 		i.WASDDirection.X += 1
+	}
+
+	if !i.WASDDirection.Equal(NoDirection) {
+		i.LastPressedWASDDirection = i.WASDDirection
 	}
 
 }

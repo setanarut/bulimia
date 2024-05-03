@@ -17,7 +17,7 @@ func DefaultBomb(world donburi.World, space *cm.Space, pos cm.Vec2) {
 	NewBombEntity(1, 0.1, 0, 20, world, space, pos)
 }
 func DefaultFoodCollectible(world donburi.World, space *cm.Space, pos cm.Vec2) {
-	NewCollectibleEntity(component.Food, 1, -1, 5, world, space, pos)
+	NewCollectibleEntity(component.Food, 1, -1, 10, world, space, pos)
 }
 
 func DefaultKeyCollectible(keyNumber int, world donburi.World, space *cm.Space, pos cm.Vec2) {
