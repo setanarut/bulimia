@@ -2,7 +2,8 @@
 
 Open source top-down 2D game prototype
 
-![bulimia_screen](https://github.com/setanarut/bulimia/assets/36481442/b03be67d-f4e6-4fe7-9cbe-693ce11aa6da)
+
+![ss](https://github.com/setanarut/bulimia/assets/36481442/f4cc2bb1-bafb-47f0-9587-9de3d2c852eb)
 
 
 ### Controls 
