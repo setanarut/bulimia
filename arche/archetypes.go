@@ -261,9 +261,9 @@ func SpawnRoom(world donburi.World, space *cm.Space, roomBB cm.BB, opts RoomOpti
 	leftDoorCenter := roomBB.LT().Lerp(roomBB.LB(), 0.5)
 	rightDoorCenter := roomBB.RT().Lerp(roomBB.RB(), 0.5)
 
-	topLeftWallCenter := cm.Vec2{topDoorLength, roomBB.T}
+	topLeftWallCenter := cm.Vec2{roomBB.L + topDoorLength, roomBB.T}
 	topRightWallCenter := cm.Vec2{roomBB.R - topDoorLength, roomBB.T}
-	bottomLeftWallCenter := cm.Vec2{topDoorLength, roomBB.B}
+	bottomLeftWallCenter := cm.Vec2{roomBB.L + topDoorLength, roomBB.B}
 	bottomRightWallCenter := cm.Vec2{roomBB.R - topDoorLength, roomBB.B}
 
 	leftDoorBottom := cm.Vec2{roomBB.L, roomBB.B + leftDoorLength}

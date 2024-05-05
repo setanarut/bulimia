@@ -15,19 +15,19 @@ import (
 
 // Chipmunk Space draw system
 type DrawHUDSystem struct {
-	screenBox   *cm.BB
+	screenBox   cm.BB
 	textOptions *text.DrawOptions
 	cam         *engine.Camera
 	player      *donburi.Entry
 }
 
-func NewDrawHUDSystem(screenBox *cm.BB) *DrawHUDSystem {
+func NewDrawHUDSystem(screenBox cm.BB) *DrawHUDSystem {
 	return &DrawHUDSystem{
 		screenBox:   screenBox,
 		textOptions: &text.DrawOptions{},
 	}
 }
-func (hs *DrawHUDSystem) Init(world donburi.World, space *cm.Space, screenBox *cm.BB) {
+func (hs *DrawHUDSystem) Init(world donburi.World, space *cm.Space, screenBox cm.BB) {
 	hs.textOptions.ColorScale.ScaleWithColor(color.White)
 	hs.textOptions.LineSpacing = resources.FontFace.Size * 1.2
 	hs.textOptions.GeoM.Translate(30, 25)

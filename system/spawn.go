@@ -15,7 +15,6 @@ var Rooms []cm.BB
 var CurrentRoom cm.BB
 
 type EntitySpawnSystem struct {
-	scr *cm.BB
 	cam *engine.Camera
 	// spawnTimer          *engine.Timer
 }
@@ -27,19 +26,23 @@ func NewEntitySpawnSystem() *EntitySpawnSystem {
 	}
 }
 
-func (sys *EntitySpawnSystem) Init(world donburi.World, space *cm.Space, scr *cm.BB) {
+func (sys *EntitySpawnSystem) Init(world donburi.World, space *cm.Space, scr cm.BB) {
 	e := arche.SpawnCamera(scr.Center(), scr.R, scr.T, world)
 	sys.cam = comp.Camera.Get(e)
-	sys.scr = scr
+
 	Rooms = make([]cm.BB, 0)
-	Rooms = append(Rooms, *scr)                           // middle 0
+	Rooms = append(Rooms, scr)                            // middle 0
 	Rooms = append(Rooms, scr.Offset(cm.Vec2{0, scr.T}))  // top 1
 	Rooms = append(Rooms, scr.Offset(cm.Vec2{0, -scr.T})) // bottom 2
+	Rooms = append(Rooms, scr.Offset(cm.Vec2{-scr.R, 0})) // left 3
+	Rooms = append(Rooms, scr.Offset(cm.Vec2{scr.R, 0}))  // right 4
 
-	CurrentRoom = *scr
-	arche.SpawnRoom(world, space, Rooms[1], arche.RoomOptions{true, false, true, true, 5, -1, 6, 7})
+	CurrentRoom = scr
 	arche.SpawnRoom(world, space, Rooms[0], arche.RoomOptions{true, true, true, true, 1, 2, 3, 4})
+	arche.SpawnRoom(world, space, Rooms[1], arche.RoomOptions{true, false, true, true, 5, -1, 6, 7})
 	arche.SpawnRoom(world, space, Rooms[2], arche.RoomOptions{false, true, true, true, -1, 8, 9, 10})
+	arche.SpawnRoom(world, space, Rooms[3], arche.RoomOptions{true, true, true, false, 11, 12, 13, -1})
+	arche.SpawnRoom(world, space, Rooms[4], arche.RoomOptions{true, true, false, true, 14, 15, -1, 16})
 
 	arche.SpawnPlayer(0.1, 0.3, 0, 20, world, space, scr.Center().Add(cm.Vec2{0, -120}))
 

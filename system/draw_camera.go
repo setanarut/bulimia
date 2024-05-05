@@ -12,11 +12,11 @@ import (
 
 // DrawCameraSystem
 type DrawCameraSystem struct {
-	screenBox *cm.BB
+	screenBox cm.BB
 	cam       *engine.Camera
 }
 
-func NewDrawCameraSystem(screenBox *cm.BB) *DrawCameraSystem {
+func NewDrawCameraSystem(screenBox cm.BB) *DrawCameraSystem {
 
 	dbs := &DrawCameraSystem{
 		screenBox: screenBox,
@@ -25,13 +25,20 @@ func NewDrawCameraSystem(screenBox *cm.BB) *DrawCameraSystem {
 	return dbs
 }
 
-func (ds *DrawCameraSystem) Init(world donburi.World, space *cm.Space, screenBox *cm.BB) {
+func (ds *DrawCameraSystem) Init(world donburi.World, space *cm.Space, screenBox cm.BB) {
 	if cam, ok := comp.Camera.First(world); ok {
 		ds.cam = comp.Camera.Get(cam)
 	}
 }
 
 func (ds *DrawCameraSystem) Update(world donburi.World, space *cm.Space) {
+
+	if ebiten.IsKeyPressed(ebiten.KeyO) {
+		ds.cam.ZoomFactor -= 1
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyP) {
+		ds.cam.ZoomFactor += 1
+	}
 
 	ds.cam.LookAt(engine.InvPosVectY(CurrentRoom.Center(), ds.screenBox.T))
 

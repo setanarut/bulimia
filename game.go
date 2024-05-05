@@ -11,7 +11,7 @@ import (
 var Deneme int = 666
 
 type System interface {
-	Init(world donburi.World, space *cm.Space, ScreenBox *cm.BB)
+	Init(world donburi.World, space *cm.Space, ScreenBox cm.BB)
 	Update(world donburi.World, space *cm.Space)
 	Draw(world donburi.World, space *cm.Space, screen *ebiten.Image)
 }
@@ -20,14 +20,14 @@ type Game struct {
 	world     donburi.World
 	space     *cm.Space
 	systems   []System
-	screenBox *cm.BB
+	screenBox cm.BB
 }
 
 func NewGame(w, h float64) *Game {
 	return &Game{
 		space:     cm.NewSpace(),
 		world:     donburi.NewWorld(),
-		screenBox: &cm.BB{0, 0, w, h},
+		screenBox: cm.BB{0, 0, w, h},
 	}
 }
 

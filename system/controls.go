@@ -26,7 +26,7 @@ func NewPlayerControlSystem() *PlayerControlSystem {
 	}
 }
 
-func (sys *PlayerControlSystem) Init(world donburi.World, space *cm.Space, ScreenBox *cm.BB) {
+func (sys *PlayerControlSystem) Init(world donburi.World, space *cm.Space, ScreenBox cm.BB) {
 	// set SetVelocityUpdateFunc
 	if playerEntry, ok := comp.PlayerTag.First(world); ok {
 		body := comp.Body.Get(playerEntry)

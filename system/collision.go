@@ -25,7 +25,7 @@ func NewPhysicsSystem(w donburi.World) *PhysicsSystem {
 	}
 }
 
-func (ps *PhysicsSystem) Init(world donburi.World, space *cm.Space, ScreenBox *cm.BB) {
+func (ps *PhysicsSystem) Init(world donburi.World, space *cm.Space, ScreenBox cm.BB) {
 
 	ps.space = space
 	space.UseSpatialHash(64, 200)
