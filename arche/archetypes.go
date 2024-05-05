@@ -5,6 +5,7 @@ import (
 	"bulimia/engine"
 	"bulimia/engine/cm"
 	"bulimia/resources"
+	"image/color"
 
 	"github.com/yohamta/donburi"
 	"golang.org/x/image/colornames"
@@ -39,18 +40,18 @@ func SpawnPlayer(m, e, f, r float64, world donburi.World, space *cm.Space, pos c
 	render := comp.Render.Get(entry)
 
 	render.AnimPlayer = engine.NewAnimationPlayer(resources.Pacman)
-	render.AnimPlayer.SetFPS(6)
 	w := 100
-	render.AnimPlayer.AddStateAnimation("shootR", 0, 0, w, w, 1)
-	render.AnimPlayer.AddStateAnimation("shootL", 0, w, w, w, 1)
-	render.AnimPlayer.AddStateAnimation("shootU", 0, w*2, w, w, 1)
-	render.AnimPlayer.AddStateAnimation("shootD", 0, w*3, w, w, 1)
+	render.AnimPlayer.AddStateAnimation("shootR", 0, 0, w, w, 1, true)
+	render.AnimPlayer.AddStateAnimation("shootL", 0, w, w, w, 1, true)
+	render.AnimPlayer.AddStateAnimation("shootU", 0, w*2, w, w, 1, true)
+	render.AnimPlayer.AddStateAnimation("shootD", 0, w*3, w, w, 1, true)
 
-	render.AnimPlayer.AddStateAnimation("right", 0, 0, w, w, 4)
-	render.AnimPlayer.AddStateAnimation("left", 0, w, w, w, 4)
-	render.AnimPlayer.AddStateAnimation("up", 0, w*2, w, w, 4)
-	render.AnimPlayer.AddStateAnimation("down", 0, w*3, w, w, 4)
+	render.AnimPlayer.AddStateAnimation("right", 0, 0, w, w, 4, true)
+	render.AnimPlayer.AddStateAnimation("left", 0, w, w, w, 4, true)
+	render.AnimPlayer.AddStateAnimation("up", 0, w*2, w, w, 4, true)
+	render.AnimPlayer.AddStateAnimation("down", 0, w*3, w, w, 4, true)
 
+	render.AnimPlayer.SetFPS(8)
 	render.DrawScale = engine.GetCircleScaleFactor(r, render.AnimPlayer.CurrentFrame)
 	render.Offset = engine.GetEbitenImageOffset(render.AnimPlayer.CurrentFrame)
 	render.ScaleColor = colornames.Yellow
@@ -75,7 +76,7 @@ func SpawnEnemy(m, e, f, r, viewRadius float64, world donburi.World, space *cm.S
 
 	render.AnimPlayer = engine.NewAnimationPlayer(resources.Enemy)
 	w := resources.Enemy.Bounds().Dx()
-	render.AnimPlayer.AddStateAnimation("idle", 0, 0, w, w, 1)
+	render.AnimPlayer.AddStateAnimation("idle", 0, 0, w, w, 1, false)
 	render.DrawScale = engine.GetCircleScaleFactor(r, render.AnimPlayer.CurrentFrame)
 	render.Offset = engine.GetEbitenImageOffset(render.AnimPlayer.CurrentFrame)
 	render.AnimPlayer.Paused = true
@@ -93,13 +94,12 @@ func SpawnBomb(m, e, f, r float64, world donburi.World, space *cm.Space, pos cm.
 
 	render := comp.Render.Get(entry)
 
-	render.AnimPlayer = engine.NewAnimationPlayer(resources.Bomb)
-	w := resources.Bomb.Bounds().Dx()
-	render.AnimPlayer.AddStateAnimation("idle", 0, 0, w, w, 1)
+	render.AnimPlayer = engine.NewAnimationPlayer(resources.Items)
+	render.AnimPlayer.AddStateAnimation("idle", 0, 0, 100, 100, 1, false)
 	render.DrawScale = engine.GetCircleScaleFactor(r, render.AnimPlayer.CurrentFrame)
 	render.Offset = engine.GetEbitenImageOffset(render.AnimPlayer.CurrentFrame)
 	render.AnimPlayer.Paused = true
-	render.ScaleColor = colornames.Grey
+	render.ScaleColor = color.RGBA{244, 117, 88, 255}
 	return entry
 }
 
@@ -116,9 +116,8 @@ func SpawnFood(m, e, f, r float64, world donburi.World, space *cm.Space, pos cm.
 
 	render := comp.Render.Get(entry)
 
-	render.AnimPlayer = engine.NewAnimationPlayer(resources.Food)
-	w := resources.Food.Bounds().Dx()
-	render.AnimPlayer.AddStateAnimation("idle", 0, 0, w, w, 1)
+	render.AnimPlayer = engine.NewAnimationPlayer(resources.Items)
+	render.AnimPlayer.AddStateAnimation("idle", 200, 0, 100, 100, 1, false)
 	render.DrawScale = engine.GetCircleScaleFactor(r, render.AnimPlayer.CurrentFrame)
 	render.Offset = engine.GetEbitenImageOffset(render.AnimPlayer.CurrentFrame)
 	render.AnimPlayer.Paused = true
@@ -151,7 +150,7 @@ func SpawnWall(world donburi.World, space *cm.Space, boxCenter cm.Vec2, boxW, bo
 
 	render.AnimPlayer = engine.NewAnimationPlayer(resources.Wall)
 	imW := resources.Wall.Bounds().Dx()
-	render.AnimPlayer.AddStateAnimation("idle", 0, 0, imW, imW, 1)
+	render.AnimPlayer.AddStateAnimation("idle", 0, 0, imW, imW, 1, false)
 	render.DrawScale = engine.GetBoxScaleFactor(float64(imW), float64(imW), boxW, boxH)
 	render.Offset = engine.GetEbitenImageOffset(render.AnimPlayer.CurrentFrame)
 	render.AnimPlayer.Paused = true
@@ -190,7 +189,7 @@ func SpawnDoor(world donburi.World,
 
 	render.AnimPlayer = engine.NewAnimationPlayer(resources.Wall)
 	imW := resources.Wall.Bounds().Dx()
-	render.AnimPlayer.AddStateAnimation("idle", 0, 0, imW, imW, 1)
+	render.AnimPlayer.AddStateAnimation("idle", 0, 0, imW, imW, 1, false)
 	render.DrawScale = engine.GetBoxScaleFactor(float64(imW), float64(imW), boxW, boxH)
 	render.Offset = engine.GetEbitenImageOffset(render.AnimPlayer.CurrentFrame)
 	render.AnimPlayer.Paused = true
@@ -217,22 +216,18 @@ func SpawnCollectible(itemType comp.ItemType, count, keyNumber int,
 
 	switch itemType {
 
-	case comp.Food:
-		ap = engine.NewAnimationPlayer(resources.Food)
-
-		ap.AddStateAnimation("idle", 0, 0, resources.Food.Bounds().Dx(), resources.Food.Bounds().Dy(), 1)
-
 	case comp.Bomb:
-		ap = engine.NewAnimationPlayer(resources.Bomb)
-		ap.AddStateAnimation("idle", 0, 0, resources.Bomb.Bounds().Dx(), resources.Bomb.Bounds().Dy(), 1)
-
+		ap = engine.NewAnimationPlayer(resources.Items)
+		ap.AddStateAnimation("idle", 0, 0, 100, 100, 1, false)
 	case comp.Key:
-		ap = engine.NewAnimationPlayer(resources.Key)
-		ap.AddStateAnimation("idle", 0, 0, resources.Key.Bounds().Dx(), resources.Key.Bounds().Dy(), 1)
-
+		ap = engine.NewAnimationPlayer(resources.Items)
+		ap.AddStateAnimation("idle", 100, 0, 100, 100, 1, false)
+	case comp.Food:
+		ap = engine.NewAnimationPlayer(resources.Items)
+		ap.AddStateAnimation("idle", 200, 0, 100, 100, 1, false)
 	default:
-		ap = engine.NewAnimationPlayer(resources.Food)
-		ap.AddStateAnimation("idle", 0, 0, resources.Food.Bounds().Dx(), resources.Food.Bounds().Dy(), 1)
+		ap = engine.NewAnimationPlayer(resources.Items)
+		ap.AddStateAnimation("idle", 200, 0, 100, 100, 1, false)
 
 	}
 

@@ -24,7 +24,7 @@ type AnimationPlayer struct {
 // w and h are the width and height of the first frame's rectangle.
 //
 // The sub-rectangles repeat to the right by the frameCount amount.
-func (ap *AnimationPlayer) AddStateAnimation(stateName string, x, y, w, h, frameCount int) *Animation {
+func (ap *AnimationPlayer) AddStateAnimation(stateName string, x, y, w, h, frameCount int, pingpong bool) *Animation {
 
 	subImages := []*ebiten.Image{}
 	frameRect := image.Rect(x, y, x+w, y+h)
@@ -33,11 +33,19 @@ func (ap *AnimationPlayer) AddStateAnimation(stateName string, x, y, w, h, frame
 		frameRect.Min.X += w
 		frameRect.Max.X += w
 	}
+
+	if pingpong {
+		for i := frameCount - 2; i > 1; i-- {
+			subImages = append(subImages, subImages[i])
+		}
+	}
+
 	anim := &Animation{
 		FPS:    15.0,
 		Frames: subImages,
 		Name:   stateName,
 	}
+
 	ap.CurrentState = stateName
 	ap.Animations[stateName] = anim
 	ap.CurrentFrame = ap.Animations[ap.CurrentState].Frames[ap.CurrentFrameIndex]
@@ -81,10 +89,6 @@ func (ap *AnimationPlayer) SetStateReset(state string) {
 func (ap *AnimationPlayer) SetState(state string) {
 	if ap.CurrentState != state {
 		ap.CurrentState = state
-		// if ap.CurrentFrameIndex != 0 {
-		// 	ap.Tick = 0
-		// 	ap.CurrentFrameIndex = 0
-		// }
 	}
 }
 
@@ -128,3 +132,8 @@ type Animation struct {
 	FPS    float64
 	Name   string
 }
+
+// func oscillate(input, min, max int) int {
+// 	rang := max - min
+// 	return min + int(math.Abs(float64(((input+rang)%(rang*2))-rang)))
+// }

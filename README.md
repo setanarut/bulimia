@@ -10,7 +10,7 @@ Open source top-down 2D game prototype
 - Movement: `WASD`
 - Shooting: `Arrow Keys`
 - Spawn the object at cursor: `1-2-3-4-5`
-- Drop Bomb: `E`
+- Drop Bomb: Hold down`Space` and `Arrow Keys`
 - Detonate bombs: `Q`
 - Spawn enemies: `F`
 - Enemy AI on/off: `C`
