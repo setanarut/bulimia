@@ -1,7 +1,6 @@
 package engine
 
 import (
-	"bulimia/engine/cm"
 	"image"
 	"math"
 
@@ -16,9 +15,6 @@ type AnimationPlayer struct {
 	CurrentFrameIndex         int
 	CurrentState              string
 	Tick                      float64
-	DrawOffset                cm.Vec2
-	DrawScaleX                float64
-	DrawScaleY                float64
 }
 
 // AddStateAnimation adds new Animation to this AnimationPlayer and returns the added animation.
@@ -29,9 +25,7 @@ type AnimationPlayer struct {
 //
 // The sub-rectangles repeat to the right by the frameCount amount.
 func (ap *AnimationPlayer) AddStateAnimation(stateName string, x, y, w, h, frameCount int) *Animation {
-	ap.DrawOffset = cm.Vec2{float64(w) / 2, float64(h) / 2}.Neg()
-	ap.DrawScaleX = 1.0
-	ap.DrawScaleY = 1.0
+
 	subImages := []*ebiten.Image{}
 	frameRect := image.Rect(x, y, x+w, y+h)
 	for i := 0; i < frameCount; i++ {

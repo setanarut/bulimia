@@ -16,11 +16,10 @@ var (
 )
 
 type InputManager struct {
-	WASDDirection             cm.Vec2
-	ArrowDirection            cm.Vec2
-	ArrowDirectionTemp        cm.Vec2
-	LastPressedArrowDirection cm.Vec2
-	LastPressedWASDDirection  cm.Vec2
+	WASDDirection        cm.Vec2
+	ArrowDirection       cm.Vec2
+	ArrowDirectionTemp   cm.Vec2
+	LastPressedDirection cm.Vec2
 }
 
 func (i *InputManager) UpdateJustArrowDirection() {
@@ -69,7 +68,7 @@ func (i *InputManager) UpdateArrowDirection() {
 	}
 
 	if !i.ArrowDirection.Equal(NoDirection) {
-		i.LastPressedArrowDirection = i.ArrowDirection
+		i.LastPressedDirection = i.ArrowDirection
 	}
 
 }
@@ -90,7 +89,7 @@ func (i *InputManager) UpdateWASDDirection() {
 	}
 
 	if !i.WASDDirection.Equal(NoDirection) {
-		i.LastPressedWASDDirection = i.WASDDirection
+		i.LastPressedDirection = i.WASDDirection
 	}
 
 }

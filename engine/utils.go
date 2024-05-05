@@ -170,6 +170,10 @@ func Clamp(f, low, high float64) float64 {
 	return f
 }
 
-func ScaleFactor(imageW, imageH, targetW, targetH float64) (sX float64, sY float64) {
-	return (targetW / imageW), (targetH / imageH)
+func GetBoxScaleFactor(imageW, imageH, targetW, targetH float64) cm.Vec2 {
+	return cm.Vec2{(targetW / imageW), (targetH / imageH)}
+}
+func GetCircleScaleFactor(radius float64, image *ebiten.Image) cm.Vec2 {
+	scaleX := 2 * radius / float64(image.Bounds().Dx())
+	return cm.Vec2{scaleX, scaleX}
 }

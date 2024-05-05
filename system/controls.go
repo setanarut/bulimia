@@ -2,7 +2,7 @@ package system
 
 import (
 	"bulimia/arche"
-	"bulimia/component"
+	"bulimia/comp"
 	"bulimia/engine"
 	"bulimia/engine/cm"
 	"time"
@@ -28,8 +28,8 @@ func NewPlayerControlSystem() *PlayerControlSystem {
 
 func (sys *PlayerControlSystem) Init(world donburi.World, space *cm.Space, ScreenBox *cm.BB) {
 	// set SetVelocityUpdateFunc
-	if playerEntry, ok := component.PlayerTagComp.First(world); ok {
-		body := component.BodyComp.Get(playerEntry)
+	if playerEntry, ok := comp.PlayerTag.First(world); ok {
+		body := comp.Body.Get(playerEntry)
 		sys.distance = body.FirstShape().Class.(*cm.Circle).Radius()
 		body.SetVelocityUpdateFunc(sys.playerVelocityFunc)
 	}
@@ -41,14 +41,15 @@ func (sys *PlayerControlSystem) Update(world donburi.World, space *cm.Space) {
 	Input.UpdateArrowDirection()
 	Input.UpdateWASDDirection()
 
-	if playerEntry, ok := component.PlayerTagComp.First(world); ok {
-		inventory := component.InventoryComp.Get(playerEntry)
-		playerBody := component.BodyComp.Get(playerEntry)
-		playerAnimPlayer := component.AnimPlayerComp.Get(playerEntry)
+	if playerEntry, ok := comp.PlayerTag.First(world); ok {
+		inventory := comp.Inventory.Get(playerEntry)
+		playerBody := comp.Body.Get(playerEntry)
+		playerRenderData := comp.Render.Get(playerEntry)
+
 		playerPos := playerBody.Position()
 
 		if Input.ArrowDirection.Equal(engine.RightDirection) {
-			playerAnimPlayer.SetState("shootR")
+			playerRenderData.AnimPlayer.SetState("shootR")
 
 			if inventory.Foods > 0 {
 
@@ -57,9 +58,9 @@ func (sys *PlayerControlSystem) Update(world donburi.World, space *cm.Space) {
 				}
 
 				if sys.bulletTimer.IsStart() {
-					bullet := arche.NewFoodEntity(0.1, 0, 0.5, sys.bulletRadius, world, space, playerPos)
+					bullet := arche.SpawnFood(0.1, 0, 0.5, sys.bulletRadius, world, space, playerPos)
 					inventory.Foods -= 1
-					bulletBody := component.BodyComp.Get(bullet)
+					bulletBody := comp.Body.Get(bullet)
 					bulletBody.ApplyImpulseAtWorldPoint(cm.Vec2{100, 0}, playerPos)
 				}
 
@@ -67,7 +68,7 @@ func (sys *PlayerControlSystem) Update(world donburi.World, space *cm.Space) {
 		}
 
 		if Input.ArrowDirection.Equal(engine.LeftDirection) {
-			playerAnimPlayer.SetState("shootL")
+			playerRenderData.AnimPlayer.SetState("shootL")
 
 			if inventory.Foods > 0 {
 
@@ -77,25 +78,25 @@ func (sys *PlayerControlSystem) Update(world donburi.World, space *cm.Space) {
 
 				if sys.bulletTimer.IsStart() {
 
-					bullet := arche.NewFoodEntity(0.1, 0, 0.5, sys.bulletRadius, world, space, playerPos)
+					bullet := arche.SpawnFood(0.1, 0, 0.5, sys.bulletRadius, world, space, playerPos)
 					inventory.Foods -= 1
-					bulletBody := component.BodyComp.Get(bullet)
+					bulletBody := comp.Body.Get(bullet)
 					bulletBody.ApplyImpulseAtWorldPoint(cm.Vec2{-100, 0}, playerPos)
 				}
 			}
 		}
 
 		if Input.ArrowDirection.Equal(engine.UpDirection) {
-			playerAnimPlayer.SetState("shootU")
+			playerRenderData.AnimPlayer.SetState("shootU")
 
 			if inventory.Foods > 0 {
 				if sys.bulletTimer.IsReady() {
 					sys.bulletTimer.Reset()
 				}
 				if sys.bulletTimer.IsStart() {
-					bullet := arche.NewFoodEntity(0.1, 0, 0.5, sys.bulletRadius, world, space, playerPos)
+					bullet := arche.SpawnFood(0.1, 0, 0.5, sys.bulletRadius, world, space, playerPos)
 					inventory.Foods -= 1
-					bulletBody := component.BodyComp.Get(bullet)
+					bulletBody := comp.Body.Get(bullet)
 					bulletBody.ApplyImpulseAtWorldPoint(cm.Vec2{0, 100}, playerPos)
 				}
 
@@ -104,7 +105,7 @@ func (sys *PlayerControlSystem) Update(world donburi.World, space *cm.Space) {
 		}
 
 		if Input.ArrowDirection == engine.DownDirection {
-			playerAnimPlayer.SetState("shootD")
+			playerRenderData.AnimPlayer.SetState("shootD")
 
 			if inventory.Foods > 0 {
 
@@ -112,9 +113,9 @@ func (sys *PlayerControlSystem) Update(world donburi.World, space *cm.Space) {
 					sys.bulletTimer.Reset()
 				}
 				if sys.bulletTimer.IsStart() {
-					bullet := arche.NewFoodEntity(0.1, 0, 0.5, sys.bulletRadius, world, space, playerPos)
+					bullet := arche.SpawnFood(0.1, 0, 0.5, sys.bulletRadius, world, space, playerPos)
 					inventory.Foods -= 1
-					bulletBody := component.BodyComp.Get(bullet)
+					bulletBody := comp.Body.Get(bullet)
 					bulletBody.ApplyImpulseAtWorldPoint(cm.Vec2{0, -100}, playerPos)
 				}
 
@@ -122,16 +123,16 @@ func (sys *PlayerControlSystem) Update(world donburi.World, space *cm.Space) {
 		}
 
 		if inpututil.IsKeyJustReleased(ebiten.KeyArrowUp) {
-			playerAnimPlayer.SetState("up")
+			playerRenderData.AnimPlayer.SetState("up")
 		}
 		if inpututil.IsKeyJustReleased(ebiten.KeyArrowDown) {
-			playerAnimPlayer.SetState("down")
+			playerRenderData.AnimPlayer.SetState("down")
 		}
 		if inpututil.IsKeyJustReleased(ebiten.KeyArrowLeft) {
-			playerAnimPlayer.SetState("left")
+			playerRenderData.AnimPlayer.SetState("left")
 		}
 		if inpututil.IsKeyJustReleased(ebiten.KeyArrowRight) {
-			playerAnimPlayer.SetState("right")
+			playerRenderData.AnimPlayer.SetState("right")
 		}
 
 		if Input.ArrowDirection.Equal(engine.NoDirection) {
@@ -139,16 +140,16 @@ func (sys *PlayerControlSystem) Update(world donburi.World, space *cm.Space) {
 			switch Input.WASDDirection {
 
 			case engine.RightDirection:
-				playerAnimPlayer.SetState("right")
+				playerRenderData.AnimPlayer.SetState("right")
 
 			case engine.LeftDirection:
-				playerAnimPlayer.SetState("left")
+				playerRenderData.AnimPlayer.SetState("left")
 
 			case engine.UpDirection:
-				playerAnimPlayer.SetState("up")
+				playerRenderData.AnimPlayer.SetState("up")
 
 			case engine.DownDirection:
-				playerAnimPlayer.SetState("down")
+				playerRenderData.AnimPlayer.SetState("down")
 
 			}
 
@@ -158,8 +159,8 @@ func (sys *PlayerControlSystem) Update(world donburi.World, space *cm.Space) {
 
 			// Bomba bırak
 			if inpututil.IsKeyJustPressed(ebiten.KeyE) {
-				pos := playerPos.Add(cm.Vec2{sys.distance, 0})
-				arche.DefaultBomb(world, space, pos)
+				bombPos := Input.LastPressedDirection.Mult(sys.distance)
+				arche.SpawnDefaultBomb(world, space, playerPos.Add(bombPos))
 				inventory.Bombs -= 1
 			}
 
@@ -169,15 +170,15 @@ func (sys *PlayerControlSystem) Update(world donburi.World, space *cm.Space) {
 
 	// Explode all bombs
 	if inpututil.IsKeyJustPressed(ebiten.KeyQ) {
-		component.BombTagComp.Each(world, func(e *donburi.Entry) {
+		comp.BombTag.Each(world, func(e *donburi.Entry) {
 			Explode(e)
 		})
 	}
 
 	// AI on/off
 	if inpututil.IsKeyJustPressed(ebiten.KeyC) {
-		component.AIComp.Each(world, func(e *donburi.Entry) {
-			ai := component.AIComp.Get(e)
+		comp.AI.Each(world, func(e *donburi.Entry) {
+			ai := comp.AI.Get(e)
 			ai.Follow = !ai.Follow
 		})
 
@@ -185,7 +186,7 @@ func (sys *PlayerControlSystem) Update(world donburi.World, space *cm.Space) {
 
 	// remove all enemies
 	if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) {
-		component.EnemyTagComp.Each(world, func(e *donburi.Entry) {
+		comp.EnemyTag.Each(world, func(e *donburi.Entry) {
 			DestroyEntryWithBody(e)
 		})
 	}
@@ -202,10 +203,9 @@ func (sys *PlayerControlSystem) playerVelocityFunc(body *cm.Body, gravity cm.Vec
 
 	if ok {
 		if entry.Valid() {
-			speed := component.SpeedComp.Get(entry)
-			accel := component.AccelComp.Get(entry)
-			WASDAxisVector2 := Input.WASDDirection.Normalize().Mult(*speed)
-			body.SetVelocityVector(body.Velocity().LerpDistance(WASDAxisVector2, *accel))
+			livingData := comp.Living.Get(entry)
+			WASDAxisVector2 := Input.WASDDirection.Normalize().Mult(livingData.Speed)
+			body.SetVelocityVector(body.Velocity().LerpDistance(WASDAxisVector2, livingData.Accel))
 		}
 	}
 }

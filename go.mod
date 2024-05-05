@@ -2,15 +2,17 @@ module bulimia
 
 go 1.22.2
 
-require github.com/hajimehoshi/ebiten/v2 v2.7.2
+require (
+	github.com/hajimehoshi/ebiten/v2 v2.7.2
+	golang.org/x/image v0.15.0
+)
 
 require (
 	github.com/ebitengine/gomobile v0.0.0-20240429094902-cf88669c3591 // indirect
 	github.com/ebitengine/hideconsole v1.0.0 // indirect
 	github.com/go-text/typesetting v0.1.1 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
-	github.com/mazznoer/csscolorparser v0.1.3 // indirect
-	golang.org/x/image v0.15.0 // indirect
+	github.com/mazznoer/csscolorparser v0.1.2 // indirect
 )
 
 require (

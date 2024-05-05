@@ -2,7 +2,7 @@ package system
 
 import (
 	"bulimia/arche"
-	"bulimia/component"
+	"bulimia/comp"
 	"bulimia/engine"
 	"bulimia/engine/cm"
 	"math"
@@ -50,25 +50,26 @@ func (ps *PhysicsSystem) Init(world donburi.World, space *cm.Space, ScreenBox *c
 
 func (ps *PhysicsSystem) Update(world donburi.World, space *cm.Space) {
 
-	component.FoodTagComp.Each(world, func(e *donburi.Entry) {
-		b := component.BodyComp.Get(e)
+	comp.FoodTag.Each(world, func(e *donburi.Entry) {
+		b := comp.Body.Get(e)
 		if engine.IsMoving(b.Velocity(), 80) {
 			DestroyBodyWithEntry(b)
 		}
 	})
 
-	if pla, ok := component.PlayerTagComp.First(world); ok {
+	if pla, ok := comp.PlayerTag.First(world); ok {
 
-		component.EnemyTagComp.Each(world, func(e *donburi.Entry) {
+		comp.EnemyTag.Each(world, func(e *donburi.Entry) {
 
-			playerBody := component.BodyComp.Get(pla)
-			ene := component.BodyComp.Get(e)
-			ai := *component.AIComp.Get(e)
+			playerBody := comp.Body.Get(pla)
+			ene := comp.Body.Get(e)
+			ai := *comp.AI.Get(e)
+			livingData := *comp.Living.Get(e)
 
 			if ai.Follow {
 				dist := playerBody.Position().Distance(ene.Position())
 				if dist < ai.FollowDistance {
-					a := playerBody.Position().Sub(ene.Position()).Normalize().Mult(ai.FollowSpeed)
+					a := playerBody.Position().Sub(ene.Position()).Normalize().Mult(livingData.Speed)
 					ene.ApplyForceAtLocalPoint(a, ene.CenterOfGravity())
 				}
 			}
@@ -87,24 +88,24 @@ func (ps *PhysicsSystem) PlayerCollectibleCollisionBegin(arb *cm.Arbiter, space 
 	playerEntry := playerBody.UserData.(*donburi.Entry)
 	collectibleEntry := bodyCollectible.UserData.(*donburi.Entry)
 
-	inventory := component.InventoryComp.Get(playerEntry)
-	collectibleComponent := component.CollectibleComp.Get(collectibleEntry)
+	inventory := comp.Inventory.Get(playerEntry)
+	collectibleComponent := comp.Collectible.Get(collectibleEntry)
 
-	if collectibleComponent.Type == component.Food {
+	if collectibleComponent.Type == comp.Food {
 		inventory.Foods += collectibleComponent.ItemCount
 	}
-	if collectibleComponent.Type == component.Bomb {
+	if collectibleComponent.Type == comp.Bomb {
 		inventory.Bombs += collectibleComponent.ItemCount
 	}
 
-	if collectibleComponent.Type == component.Key {
+	if collectibleComponent.Type == comp.Key {
 		// oyuncu anahtara sahip değilse ekle
 		keyNum := collectibleComponent.KeyNumber
 		if !slices.Contains(inventory.Keys, keyNum) {
 			inventory.Keys = append(inventory.Keys, keyNum)
 		}
-		component.DoorComp.Each(ps.world, func(e *donburi.Entry) {
-			door := component.DoorComp.Get(e)
+		comp.Door.Each(ps.world, func(e *donburi.Entry) {
+			door := comp.Door.Get(e)
 			if door.LockNumber == keyNum {
 				door.PlayerHasKey = true
 			}
@@ -118,20 +119,23 @@ func (ps *PhysicsSystem) PlayerCollectibleCollisionBegin(arb *cm.Arbiter, space 
 }
 
 func Explode(bomb *donburi.Entry) {
-	body := component.BodyComp.Get(bomb)
+	bombBody := comp.Body.Get(bomb)
+	space := bombBody.FirstShape().Space()
 
-	space := body.FirstShape().Space()
-	pos := body.Position()
-	component.EnemyTagComp.Each(bomb.World, func(enemy *donburi.Entry) {
-		body := component.BodyComp.Get(enemy)
-		queryInfo := space.SegmentQueryFirst(pos, body.Position(), 0, arche.FilterBombRaycast)
+	comp.EnemyTag.Each(bomb.World, func(enemy *donburi.Entry) {
+
+		livingData := comp.Living.Get(enemy)
+		enemyBody := comp.Body.Get(enemy)
+
+		queryInfo := space.SegmentQueryFirst(bombBody.Position(), enemyBody.Position(), 0, arche.FilterBombRaycast)
 		contactShape := queryInfo.Shape
+
 		if contactShape != nil {
-			if contactShape.Body() == body {
+			if contactShape.Body() == enemyBody {
 				ApplyRaycastImpulse(queryInfo, 1000)
-				damage := int(engine.MapRange(queryInfo.Alpha, 0.5, 1, 200, 0))
-				*component.HealthComp.Get(enemy) -= damage
-				if *component.HealthComp.Get(enemy) < 0 {
+				damage := engine.MapRange(queryInfo.Alpha, 0.5, 1, 200, 0)
+				livingData.Health -= damage
+				if livingData.Health < 0 {
 					DestroyEntryWithBody(enemy)
 				}
 
@@ -149,8 +153,8 @@ func PlayerDoorEnter(arb *cm.Arbiter, space *cm.Space, userData interface{}) boo
 
 	doorEntry := doorBody.UserData.(*donburi.Entry)
 	playerEntry := playerBody.UserData.(*donburi.Entry)
-	door := component.DoorComp.Get(doorEntry)
-	inv := component.InventoryComp.Get(playerEntry)
+	door := comp.Door.Get(doorEntry)
+	inv := comp.Inventory.Get(playerEntry)
 
 	if slices.Contains(inv.Keys, door.LockNumber) {
 		door.Open = true
@@ -163,7 +167,7 @@ func PlayerDoorEnter(arb *cm.Arbiter, space *cm.Space, userData interface{}) boo
 func PlayerDoorExit(arb *cm.Arbiter, space *cm.Space, userData interface{}) {
 	playerBody, doorBody := arb.Bodies()
 	doorEntry := doorBody.UserData.(*donburi.Entry)
-	d := component.DoorComp.Get(doorEntry)
+	d := comp.Door.Get(doorEntry)
 	d.Open = false
 	doorBody.FirstShape().SetSensor(false)
 
@@ -180,17 +184,18 @@ func FoodEnemyCollisionBegin(arb *cm.Arbiter, space *cm.Space, userData interfac
 	bulletBody, enemyBody := arb.Bodies()
 	bulletEntry := bulletBody.UserData.(*donburi.Entry)
 	enemyEntry := enemyBody.UserData.(*donburi.Entry)
+	bulletDamage := *comp.Damage.Get(bulletEntry)
 
 	if enemyEntry.Valid() {
 
-		if enemyEntry.HasComponent(component.HealthComp) {
-			health := component.HealthComp.Get(enemyEntry)
+		if enemyEntry.HasComponent(comp.Living) {
+			livingData := comp.Living.Get(enemyEntry)
 
 			if bulletEntry.Valid() {
-				*health -= *component.DamageComp.Get(bulletEntry)
+				livingData.Health -= bulletDamage
 			}
 
-			if *health < 0 {
+			if livingData.Health < 0 {
 				DestroyBodyWithEntry(enemyBody)
 			}
 		}
@@ -249,8 +254,8 @@ func DestroyBodyWithEntry(b *cm.Body) {
 }
 func DestroyEntryWithBody(entry *donburi.Entry) {
 	if entry.Valid() {
-		if entry.HasComponent(component.BodyComp) {
-			body := component.BodyComp.Get(entry)
+		if entry.HasComponent(comp.Body) {
+			body := comp.Body.Get(entry)
 			DestroyBodyWithEntry(body)
 		}
 	}

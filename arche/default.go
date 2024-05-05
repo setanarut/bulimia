@@ -1,7 +1,7 @@
 package arche
 
 import (
-	"bulimia/component"
+	"bulimia/comp"
 	"bulimia/engine"
 	"bulimia/engine/cm"
 	"math/rand/v2"
@@ -9,26 +9,26 @@ import (
 	"github.com/yohamta/donburi"
 )
 
-func DefaultEnemy(world donburi.World, space *cm.Space, pos cm.Vec2) {
-	NewEnemyEntity(1, 0.5, 0, 20, 500, world, space, pos)
+func SpawnDefaultEnemy(world donburi.World, space *cm.Space, pos cm.Vec2) {
+	SpawnEnemy(1, 0.5, 0, 20, 500, world, space, pos)
 }
 
-func DefaultBomb(world donburi.World, space *cm.Space, pos cm.Vec2) {
-	NewBombEntity(1, 0.1, 0, 20, world, space, pos)
+func SpawnDefaultBomb(world donburi.World, space *cm.Space, pos cm.Vec2) {
+	SpawnBomb(1, 0.1, 0, 20, world, space, pos)
 }
-func DefaultFoodCollectible(world donburi.World, space *cm.Space, pos cm.Vec2) {
-	NewCollectibleEntity(component.Food, 1, -1, 10, world, space, pos)
-}
-
-func DefaultKeyCollectible(keyNumber int, world donburi.World, space *cm.Space, pos cm.Vec2) {
-	NewCollectibleEntity(component.Key, 1, keyNumber, 10, world, space, pos)
+func SpawnDefaultFoodCollectible(world donburi.World, space *cm.Space, pos cm.Vec2) {
+	SpawnCollectible(comp.Food, 1, -1, 10, world, space, pos)
 }
 
-func RandomCollectible(world donburi.World, space *cm.Space, pos cm.Vec2) {
-	randomType := component.ItemType(rand.IntN(3))
-	NewCollectibleEntity(randomType, 1, engine.RandRangeInt(1, 10), 10, world, space, pos)
+func SpawnDefaultKeyCollectible(keyNumber int, world donburi.World, space *cm.Space, pos cm.Vec2) {
+	SpawnCollectible(comp.Key, 1, keyNumber, 10, world, space, pos)
 }
 
-func RandomKeyCollectible(world donburi.World, space *cm.Space, pos cm.Vec2) {
-	NewCollectibleEntity(component.Key, 1, engine.RandRangeInt(1, 10), 10, world, space, pos)
+func SpawnRandomCollectible(world donburi.World, space *cm.Space, pos cm.Vec2) {
+	randomType := comp.ItemType(rand.IntN(3))
+	SpawnCollectible(randomType, 1, engine.RandRangeInt(1, 10), 10, world, space, pos)
+}
+
+func SpawnRandomKeyCollectible(world donburi.World, space *cm.Space, pos cm.Vec2) {
+	SpawnCollectible(comp.Key, 1, engine.RandRangeInt(1, 10), 10, world, space, pos)
 }

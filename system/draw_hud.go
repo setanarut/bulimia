@@ -1,7 +1,7 @@
 package system
 
 import (
-	"bulimia/component"
+	"bulimia/comp"
 	"bulimia/engine"
 	"bulimia/engine/cm"
 	"bulimia/resources"
@@ -32,11 +32,11 @@ func (hs *DrawHUDSystem) Init(world donburi.World, space *cm.Space, screenBox *c
 	hs.textOptions.LineSpacing = resources.FontFace.Size * 1.2
 	hs.textOptions.GeoM.Translate(30, 25)
 
-	if camE, ok := component.CameraComp.First(world); ok {
-		hs.cam = component.CameraComp.Get(camE)
+	if camE, ok := comp.Camera.First(world); ok {
+		hs.cam = comp.Camera.Get(camE)
 	}
 
-	if player, ok := component.PlayerTagComp.First(world); ok {
+	if player, ok := comp.PlayerTag.First(world); ok {
 		hs.player = player
 	}
 }
@@ -48,7 +48,7 @@ func (hs *DrawHUDSystem) Draw(world donburi.World, space *cm.Space, scr *ebiten.
 
 	// debug
 	if false {
-		text.Draw(scr, fmt.Sprintf("%v", Input.LastPressedArrowDirection), resources.FontFace, hs.textOptions)
+		text.Draw(scr, fmt.Sprintf("%v", Input.LastPressedDirection), resources.FontFace, hs.textOptions)
 	}
 	// debug
 	if false {
@@ -68,8 +68,8 @@ func (hs *DrawHUDSystem) Draw(world donburi.World, space *cm.Space, scr *ebiten.
 	// inventory
 	if true {
 		if hs.player.Valid() {
-			playerInventory := *component.InventoryComp.Get(hs.player)
-			playerHealth := *component.HealthComp.Get(hs.player)
+			playerInventory := *comp.Inventory.Get(hs.player)
+			liv := *comp.Living.Get(hs.player)
 			text.Draw(
 				scr,
 				fmt.Sprintf(
@@ -77,7 +77,7 @@ func (hs *DrawHUDSystem) Draw(world donburi.World, space *cm.Space, scr *ebiten.
 					playerInventory.Foods,
 					playerInventory.Bombs,
 					playerInventory.Keys,
-					playerHealth,
+					liv.Health,
 				),
 				resources.FontFace,
 				hs.textOptions)
