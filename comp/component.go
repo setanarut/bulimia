@@ -73,8 +73,8 @@ var Gradient = donburi.NewComponentType[colorgrad.Gradient](colorgrad.NewGradien
 var Body = donburi.NewComponentType[cm.Body]()
 var AI = donburi.NewComponentType[AIData](AIData{Follow: false, FollowDistance: 300})
 var Living = donburi.NewComponentType[LivingData](LivingData{
-	Speed:  400,
-	Accel:  40,
+	Speed:  500,
+	Accel:  250,
 	Health: 100.,
 })
 

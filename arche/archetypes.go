@@ -73,10 +73,10 @@ func SpawnEnemy(m, e, f, r, viewRadius float64, world donburi.World, space *cm.S
 	entry.AddComponent(comp.Gradient)
 
 	render := comp.Render.Get(entry)
-
+	liv := comp.Living.Get(entry)
+	liv.Speed = 480
 	render.AnimPlayer = engine.NewAnimationPlayer(resources.Enemy)
-	w := resources.Enemy.Bounds().Dx()
-	render.AnimPlayer.AddStateAnimation("idle", 0, 0, w, w, 1, false)
+	render.AnimPlayer.AddStateAnimation("idle", 200, 0, 100, 100, 1, false)
 	render.DrawScale = engine.GetCircleScaleFactor(r, render.AnimPlayer.CurrentFrame)
 	render.Offset = engine.GetEbitenImageOffset(render.AnimPlayer.CurrentFrame)
 	render.AnimPlayer.Paused = true

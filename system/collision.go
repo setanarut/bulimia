@@ -64,12 +64,12 @@ func (ps *PhysicsSystem) Update(world donburi.World, space *cm.Space) {
 			playerBody := comp.Body.Get(pla)
 			ene := comp.Body.Get(e)
 			ai := *comp.AI.Get(e)
-			livingData := *comp.Living.Get(e)
+			livingData := comp.Living.Get(e)
 
 			if ai.Follow {
 				dist := playerBody.Position().Distance(ene.Position())
 				if dist < ai.FollowDistance {
-					a := playerBody.Position().Sub(ene.Position()).Normalize().Mult(livingData.Speed)
+					a := playerBody.Position().Sub(ene.Position()).Normalize().Mult(livingData.Speed * 4)
 					ene.ApplyForceAtLocalPoint(a, ene.CenterOfGravity())
 				}
 			}
@@ -184,7 +184,6 @@ func FoodEnemyCollisionBegin(arb *cm.Arbiter, space *cm.Space, userData interfac
 	bulletBody, enemyBody := arb.Bodies()
 	bulletEntry := bulletBody.UserData.(*donburi.Entry)
 	enemyEntry := enemyBody.UserData.(*donburi.Entry)
-	bulletDamage := *comp.Damage.Get(bulletEntry)
 
 	if enemyEntry.Valid() {
 
@@ -192,7 +191,7 @@ func FoodEnemyCollisionBegin(arb *cm.Arbiter, space *cm.Space, userData interfac
 			livingData := comp.Living.Get(enemyEntry)
 
 			if bulletEntry.Valid() {
-				livingData.Health -= bulletDamage
+				livingData.Health -= *comp.Damage.Get(bulletEntry)
 			}
 
 			if livingData.Health < 0 {
