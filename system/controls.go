@@ -5,6 +5,7 @@ import (
 	"bulimia/comp"
 	"bulimia/engine"
 	"bulimia/engine/cm"
+	"bulimia/res"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -26,22 +27,22 @@ func NewPlayerControlSystem() *PlayerControlSystem {
 	}
 }
 
-func (sys *PlayerControlSystem) Init(world donburi.World, space *cm.Space, ScreenBox cm.BB) {
+func (sys *PlayerControlSystem) Init() {
 	// set SetVelocityUpdateFunc
-	if playerEntry, ok := comp.PlayerTag.First(world); ok {
+	if playerEntry, ok := comp.PlayerTag.First(res.World); ok {
 		body := comp.Body.Get(playerEntry)
 		sys.distance = body.FirstShape().Class.(*cm.Circle).Radius()
 		body.SetVelocityUpdateFunc(sys.playerVelocityFunc)
 	}
 }
 
-func (sys *PlayerControlSystem) Update(world donburi.World, space *cm.Space) {
+func (sys *PlayerControlSystem) Update() {
 
 	// Input.UpdateJustArrowDirection()
 	Input.UpdateArrowDirection()
 	Input.UpdateWASDDirection()
 
-	if playerEntry, ok := comp.PlayerTag.First(world); ok {
+	if playerEntry, ok := comp.PlayerTag.First(res.World); ok {
 		inventory := comp.Inventory.Get(playerEntry)
 		playerBody := comp.Body.Get(playerEntry)
 		playerRenderData := comp.Render.Get(playerEntry)
@@ -58,7 +59,7 @@ func (sys *PlayerControlSystem) Update(world donburi.World, space *cm.Space) {
 				}
 
 				if sys.bulletTimer.IsStart() {
-					bullet := arche.SpawnFood(0.1, 0, 0.5, sys.bulletRadius, world, space, playerPos)
+					bullet := arche.SpawnFood(0.1, 0, 0.5, sys.bulletRadius, playerPos)
 					inventory.Foods -= 1
 					bulletBody := comp.Body.Get(bullet)
 					bulletBody.ApplyImpulseAtWorldPoint(cm.Vec2{100, 0}, playerPos)
@@ -78,7 +79,7 @@ func (sys *PlayerControlSystem) Update(world donburi.World, space *cm.Space) {
 
 				if sys.bulletTimer.IsStart() {
 
-					bullet := arche.SpawnFood(0.1, 0, 0.5, sys.bulletRadius, world, space, playerPos)
+					bullet := arche.SpawnFood(0.1, 0, 0.5, sys.bulletRadius, playerPos)
 					inventory.Foods -= 1
 					bulletBody := comp.Body.Get(bullet)
 					bulletBody.ApplyImpulseAtWorldPoint(cm.Vec2{-100, 0}, playerPos)
@@ -94,7 +95,7 @@ func (sys *PlayerControlSystem) Update(world donburi.World, space *cm.Space) {
 					sys.bulletTimer.Reset()
 				}
 				if sys.bulletTimer.IsStart() {
-					bullet := arche.SpawnFood(0.1, 0, 0.5, sys.bulletRadius, world, space, playerPos)
+					bullet := arche.SpawnFood(0.1, 0, 0.5, sys.bulletRadius, playerPos)
 					inventory.Foods -= 1
 					bulletBody := comp.Body.Get(bullet)
 					bulletBody.ApplyImpulseAtWorldPoint(cm.Vec2{0, 100}, playerPos)
@@ -113,7 +114,7 @@ func (sys *PlayerControlSystem) Update(world donburi.World, space *cm.Space) {
 					sys.bulletTimer.Reset()
 				}
 				if sys.bulletTimer.IsStart() {
-					bullet := arche.SpawnFood(0.1, 0, 0.5, sys.bulletRadius, world, space, playerPos)
+					bullet := arche.SpawnFood(0.1, 0, 0.5, sys.bulletRadius, playerPos)
 					inventory.Foods -= 1
 					bulletBody := comp.Body.Get(bullet)
 					bulletBody.ApplyImpulseAtWorldPoint(cm.Vec2{0, -100}, playerPos)
@@ -126,7 +127,7 @@ func (sys *PlayerControlSystem) Update(world donburi.World, space *cm.Space) {
 			playerRenderData.AnimPlayer.SetState("shootR")
 
 			if inventory.Bombs > 0 {
-				arche.SpawnDefaultBomb(world, space, playerPos.Add(cm.Vec2{50, 0}))
+				arche.SpawnDefaultBomb(playerPos.Add(cm.Vec2{50, 0}))
 				inventory.Bombs -= 1
 
 			}
@@ -135,7 +136,7 @@ func (sys *PlayerControlSystem) Update(world donburi.World, space *cm.Space) {
 			playerRenderData.AnimPlayer.SetState("shootL")
 
 			if inventory.Bombs > 0 {
-				arche.SpawnDefaultBomb(world, space, playerPos.Add(cm.Vec2{-50, 0}))
+				arche.SpawnDefaultBomb(playerPos.Add(cm.Vec2{-50, 0}))
 				inventory.Bombs -= 1
 
 			}
@@ -144,7 +145,7 @@ func (sys *PlayerControlSystem) Update(world donburi.World, space *cm.Space) {
 			playerRenderData.AnimPlayer.SetState("shootU")
 
 			if inventory.Bombs > 0 {
-				arche.SpawnDefaultBomb(world, space, playerPos.Add(cm.Vec2{0, 50}))
+				arche.SpawnDefaultBomb(playerPos.Add(cm.Vec2{0, 50}))
 				inventory.Bombs -= 1
 
 			}
@@ -153,7 +154,7 @@ func (sys *PlayerControlSystem) Update(world donburi.World, space *cm.Space) {
 			playerRenderData.AnimPlayer.SetState("shootD")
 
 			if inventory.Bombs > 0 {
-				arche.SpawnDefaultBomb(world, space, playerPos.Add(cm.Vec2{0, -50}))
+				arche.SpawnDefaultBomb(playerPos.Add(cm.Vec2{0, -50}))
 				inventory.Bombs -= 1
 
 			}
@@ -207,14 +208,14 @@ func (sys *PlayerControlSystem) Update(world donburi.World, space *cm.Space) {
 
 	// Explode all bombs
 	if inpututil.IsKeyJustPressed(ebiten.KeyQ) {
-		comp.BombTag.Each(world, func(e *donburi.Entry) {
+		comp.BombTag.Each(res.World, func(e *donburi.Entry) {
 			Explode(e)
 		})
 	}
 
 	// AI on/off
 	if inpututil.IsKeyJustPressed(ebiten.KeyC) {
-		comp.AI.Each(world, func(e *donburi.Entry) {
+		comp.AI.Each(res.World, func(e *donburi.Entry) {
 			ai := comp.AI.Get(e)
 			ai.Follow = !ai.Follow
 		})
@@ -223,7 +224,7 @@ func (sys *PlayerControlSystem) Update(world donburi.World, space *cm.Space) {
 
 	// remove all enemies
 	if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) {
-		comp.EnemyTag.Each(world, func(e *donburi.Entry) {
+		comp.EnemyTag.Each(res.World, func(e *donburi.Entry) {
 			DestroyEntryWithBody(e)
 		})
 	}
@@ -231,7 +232,7 @@ func (sys *PlayerControlSystem) Update(world donburi.World, space *cm.Space) {
 	sys.bulletTimer.Update()
 }
 
-func (sys *PlayerControlSystem) Draw(world donburi.World, space *cm.Space, screen *ebiten.Image) {
+func (sys *PlayerControlSystem) Draw() {
 }
 
 func (sys *PlayerControlSystem) playerVelocityFunc(body *cm.Body, gravity cm.Vec2, damping, dt float64) {
@@ -241,8 +242,8 @@ func (sys *PlayerControlSystem) playerVelocityFunc(body *cm.Body, gravity cm.Vec
 	if ok {
 		if entry.Valid() {
 			livingData := comp.Living.Get(entry)
-			WASDAxisVector2 := Input.WASDDirection.Normalize().Mult(livingData.Speed)
-			body.SetVelocityVector(body.Velocity().LerpDistance(WASDAxisVector2, livingData.Accel))
+			WASDAxisVector := Input.WASDDirection.Normalize().Mult(livingData.Speed)
+			body.SetVelocityVector(body.Velocity().LerpDistance(WASDAxisVector, livingData.Accel))
 		}
 	}
 }

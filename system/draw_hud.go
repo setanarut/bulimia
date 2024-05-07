@@ -3,8 +3,7 @@ package system
 import (
 	"bulimia/comp"
 	"bulimia/engine"
-	"bulimia/engine/cm"
-	"bulimia/resources"
+	"bulimia/res"
 	"fmt"
 	"image/color"
 
@@ -15,53 +14,51 @@ import (
 
 // Chipmunk Space draw system
 type DrawHUDSystem struct {
-	screenBox   cm.BB
 	textOptions *text.DrawOptions
 	cam         *engine.Camera
 	player      *donburi.Entry
 }
 
-func NewDrawHUDSystem(screenBox cm.BB) *DrawHUDSystem {
+func NewDrawHUDSystem() *DrawHUDSystem {
 	return &DrawHUDSystem{
-		screenBox:   screenBox,
 		textOptions: &text.DrawOptions{},
 	}
 }
-func (hs *DrawHUDSystem) Init(world donburi.World, space *cm.Space, screenBox cm.BB) {
+func (hs *DrawHUDSystem) Init() {
 	hs.textOptions.ColorScale.ScaleWithColor(color.White)
-	hs.textOptions.LineSpacing = resources.FontFace.Size * 1.2
+	hs.textOptions.LineSpacing = res.FontFace.Size * 1.2
 	hs.textOptions.GeoM.Translate(30, 25)
 
-	if camE, ok := comp.Camera.First(world); ok {
+	if camE, ok := comp.Camera.First(res.World); ok {
 		hs.cam = comp.Camera.Get(camE)
 	}
 
-	if player, ok := comp.PlayerTag.First(world); ok {
+	if player, ok := comp.PlayerTag.First(res.World); ok {
 		hs.player = player
 	}
 }
 
-func (hs *DrawHUDSystem) Update(world donburi.World, space *cm.Space) {
+func (hs *DrawHUDSystem) Update() {
 
 }
-func (hs *DrawHUDSystem) Draw(world donburi.World, space *cm.Space, scr *ebiten.Image) {
+func (hs *DrawHUDSystem) Draw() {
 
 	// debug
 	if false {
-		text.Draw(scr, fmt.Sprintf("%v", Input.LastPressedDirection), resources.FontFace, hs.textOptions)
+		text.Draw(res.Screen, fmt.Sprintf("%v", Input.LastPressedDirection), res.FontFace, hs.textOptions)
 	}
 	// debug
 	if false {
 		text.Draw(
-			scr,
+			res.Screen,
 			fmt.Sprintf(
 				"bodies : %d \nentities : %d \nActualTPS : %v \nActualFPS : %v",
-				len(space.DynamicBodies),
-				world.Len(),
+				len(res.Space.DynamicBodies),
+				res.World.Len(),
 				ebiten.ActualTPS(),
 				ebiten.ActualFPS(),
 			),
-			resources.FontFace,
+			res.FontFace,
 			hs.textOptions)
 	}
 
@@ -71,7 +68,7 @@ func (hs *DrawHUDSystem) Draw(world donburi.World, space *cm.Space, scr *ebiten.
 			playerInventory := *comp.Inventory.Get(hs.player)
 			liv := *comp.Living.Get(hs.player)
 			text.Draw(
-				scr,
+				res.Screen,
 				fmt.Sprintf(
 					"Foods: %d\nBombs: %d\nKeys: %v\nHealth: %v",
 					playerInventory.Foods,
@@ -79,10 +76,10 @@ func (hs *DrawHUDSystem) Draw(world donburi.World, space *cm.Space, scr *ebiten.
 					playerInventory.Keys,
 					liv.Health,
 				),
-				resources.FontFace,
+				res.FontFace,
 				hs.textOptions)
 		} else {
-			text.Draw(scr, "You are dead", resources.FontFace, hs.textOptions)
+			text.Draw(res.Screen, "You are dead", res.FontFace, hs.textOptions)
 		}
 	}
 }

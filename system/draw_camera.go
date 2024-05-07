@@ -3,7 +3,7 @@ package system
 import (
 	"bulimia/comp"
 	"bulimia/engine"
-	"bulimia/engine/cm"
+	"bulimia/res"
 	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -12,26 +12,21 @@ import (
 
 // DrawCameraSystem
 type DrawCameraSystem struct {
-	screenBox cm.BB
-	cam       *engine.Camera
+	cam *engine.Camera
 }
 
-func NewDrawCameraSystem(screenBox cm.BB) *DrawCameraSystem {
-
-	dbs := &DrawCameraSystem{
-		screenBox: screenBox,
-	}
-
+func NewDrawCameraSystem() *DrawCameraSystem {
+	dbs := &DrawCameraSystem{}
 	return dbs
 }
 
-func (ds *DrawCameraSystem) Init(world donburi.World, space *cm.Space, screenBox cm.BB) {
-	if cam, ok := comp.Camera.First(world); ok {
+func (ds *DrawCameraSystem) Init() {
+	if cam, ok := comp.Camera.First(res.World); ok {
 		ds.cam = comp.Camera.Get(cam)
 	}
 }
 
-func (ds *DrawCameraSystem) Update(world donburi.World, space *cm.Space) {
+func (ds *DrawCameraSystem) Update() {
 
 	if ebiten.IsKeyPressed(ebiten.KeyO) {
 		ds.cam.ZoomFactor -= 1
@@ -40,24 +35,22 @@ func (ds *DrawCameraSystem) Update(world donburi.World, space *cm.Space) {
 		ds.cam.ZoomFactor += 1
 	}
 
-	ds.cam.LookAt(engine.InvPosVectY(CurrentRoom.Center(), ds.screenBox.T))
+	ds.cam.LookAt(engine.InvPosVectY(res.CurrentRoom.Center(), res.ScreenBox.T))
 
-	comp.Render.Each(world, func(e *donburi.Entry) {
+	comp.Render.Each(res.World, func(e *donburi.Entry) {
 		comp.Render.Get(e).AnimPlayer.Update()
 	})
 
 }
 
-func (ds *DrawCameraSystem) Draw(world donburi.World, space *cm.Space, screen *ebiten.Image) {
+func (ds *DrawCameraSystem) Draw() {
 
 	// arka plan
-	screen.Fill(color.Gray{0})
+	res.Screen.Fill(color.Gray{0})
 
-	comp.WallTag.Each(world, func(e *donburi.Entry) {
-		ds.DrawEntry(e, screen)
-	})
+	comp.WallTag.Each(res.World, ds.DrawEntry)
 
-	comp.Door.Each(world, func(e *donburi.Entry) {
+	comp.Door.Each(res.World, func(e *donburi.Entry) {
 		render := comp.Render.Get(e)
 		doorData := comp.Door.Get(e)
 
@@ -71,43 +64,32 @@ func (ds *DrawCameraSystem) Draw(world donburi.World, space *cm.Space, screen *e
 			}
 		}
 
-		ds.DrawEntry(e, screen)
+		ds.DrawEntry(e)
 
 	})
 
-	comp.Collectible.Each(world, func(e *donburi.Entry) {
-		ds.DrawEntry(e, screen)
+	comp.Collectible.Each(res.World, ds.DrawEntry)
+	comp.BombTag.Each(res.World, ds.DrawEntry)
+	comp.FoodTag.Each(res.World, ds.DrawEntry)
 
-	})
-
-	comp.EnemyTag.Each(world, func(e *donburi.Entry) {
+	comp.EnemyTag.Each(res.World, func(e *donburi.Entry) {
 		r := comp.Render.Get(e)
 		r.ScaleColor = comp.Gradient.Get(e).At(comp.Living.Get(e).Health)
-		ds.DrawEntry(e, screen)
-
-	})
-	comp.BombTag.Each(world, func(e *donburi.Entry) {
-		ds.DrawEntry(e, screen)
-
-	})
-	comp.FoodTag.Each(world, func(e *donburi.Entry) {
-
-		ds.DrawEntry(e, screen)
+		ds.DrawEntry(e)
 
 	})
 
-	if e, ok := comp.PlayerTag.First(world); ok {
-
-		ds.DrawEntry(e, screen)
+	if e, ok := comp.PlayerTag.First(res.World); ok {
+		ds.DrawEntry(e)
 	}
 
 }
 
-func (ds *DrawCameraSystem) DrawEntry(e *donburi.Entry, screen *ebiten.Image) {
+func (ds *DrawCameraSystem) DrawEntry(e *donburi.Entry) {
 
 	body := comp.Body.Get(e)
 	render := comp.Render.Get(e)
-	pos := engine.InvPosVectY(body.Position(), ds.screenBox.T)
+	pos := engine.InvPosVectY(body.Position(), res.ScreenBox.T)
 
 	render.DIO.GeoM.Reset()
 	render.DIO.GeoM.Translate(render.Offset.X, render.Offset.Y)
@@ -116,6 +98,6 @@ func (ds *DrawCameraSystem) DrawEntry(e *donburi.Entry, screen *ebiten.Image) {
 	render.DIO.GeoM.Translate(pos.X, pos.Y)
 
 	render.DIO.ColorScale.ScaleWithColor(render.ScaleColor)
-	ds.cam.Draw(render.AnimPlayer.CurrentFrame, render.DIO, screen)
+	ds.cam.Draw(render.AnimPlayer.CurrentFrame, render.DIO, res.Screen)
 	render.DIO.ColorScale.Reset()
 }
