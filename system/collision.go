@@ -5,61 +5,56 @@ import (
 	"bulimia/comp"
 	"bulimia/engine"
 	"bulimia/engine/cm"
+	"bulimia/res"
 	"math"
 	"slices"
 
-	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/yohamta/donburi"
 )
 
 type PhysicsSystem struct {
-	world donburi.World
-	space *cm.Space
-	DT    float64
+	DT float64
 }
 
-func NewPhysicsSystem(w donburi.World) *PhysicsSystem {
+func NewPhysicsSystem() *PhysicsSystem {
 	return &PhysicsSystem{
-		world: w,
-		DT:    1.0 / 60.0,
+		DT: 1.0 / 60.0,
 	}
 }
 
-func (ps *PhysicsSystem) Init(world donburi.World, space *cm.Space, ScreenBox cm.BB) {
-
-	ps.space = space
-	space.UseSpatialHash(64, 200)
-	space.CollisionBias = math.Pow(0.3, 60)
-	space.CollisionSlop = 0.5
-	space.Damping = 0.01
+func (ps *PhysicsSystem) Init() {
+	res.Space.UseSpatialHash(64, 200)
+	res.Space.CollisionBias = math.Pow(0.3, 60)
+	res.Space.CollisionSlop = 0.5
+	res.Space.Damping = 0.01
 
 	// Player
-	space.NewCollisionHandler(arche.CollisionTypePlayer, arche.CollisionTypeDoor).BeginFunc = PlayerDoorEnter
-	space.NewCollisionHandler(arche.CollisionTypePlayer, arche.CollisionTypeDoor).SeparateFunc = PlayerDoorExit
-	space.NewCollisionHandler(arche.CollisionTypePlayer, arche.CollisionTypeCollectible).BeginFunc = ps.PlayerCollectibleCollisionBegin
+	res.Space.NewCollisionHandler(arche.CollisionTypePlayer, arche.CollisionTypeDoor).BeginFunc = PlayerDoorEnter
+	res.Space.NewCollisionHandler(arche.CollisionTypePlayer, arche.CollisionTypeDoor).SeparateFunc = PlayerDoorExit
+	res.Space.NewCollisionHandler(arche.CollisionTypePlayer, arche.CollisionTypeCollectible).BeginFunc = ps.PlayerCollectibleCollisionBegin
 
 	// Food
-	space.NewCollisionHandler(arche.CollisionTypeFood, arche.CollisionTypeEnemy).BeginFunc = FoodEnemyCollisionBegin
-	space.NewCollisionHandler(arche.CollisionTypeFood, arche.CollisionTypeBomb).BeginFunc = FoodBombCollisionBegin
-	space.NewCollisionHandler(arche.CollisionTypeFood, arche.CollisionTypeWall).BeginFunc = FoodWallCollisionBegin
-	space.NewCollisionHandler(arche.CollisionTypeFood, arche.CollisionTypeDoor).BeginFunc = FoodDoorCollisionBegin
-	// space.NewCollisionHandler(arche.CollisionTypeFood, arche.CollisionTypeCollectible).BeginFunc = FoodCollectibleCollisionBegin
+	res.Space.NewCollisionHandler(arche.CollisionTypeFood, arche.CollisionTypeEnemy).BeginFunc = FoodEnemyCollisionBegin
+	res.Space.NewCollisionHandler(arche.CollisionTypeFood, arche.CollisionTypeBomb).BeginFunc = FoodBombCollisionBegin
+	res.Space.NewCollisionHandler(arche.CollisionTypeFood, arche.CollisionTypeWall).BeginFunc = FoodWallCollisionBegin
+	res.Space.NewCollisionHandler(arche.CollisionTypeFood, arche.CollisionTypeDoor).BeginFunc = FoodDoorCollisionBegin
+	// resources.Space.NewCollisionHandler(arche.CollisionTypeFood, arche.CollisionTypeCollectible).BeginFunc = FoodCollectibleCollisionBegin
 
-	space.Step(ps.DT)
+	res.Space.Step(ps.DT)
 }
 
-func (ps *PhysicsSystem) Update(world donburi.World, space *cm.Space) {
+func (ps *PhysicsSystem) Update() {
 
-	comp.FoodTag.Each(world, func(e *donburi.Entry) {
+	comp.FoodTag.Each(res.World, func(e *donburi.Entry) {
 		b := comp.Body.Get(e)
 		if engine.IsMoving(b.Velocity(), 80) {
 			DestroyBodyWithEntry(b)
 		}
 	})
 
-	if pla, ok := comp.PlayerTag.First(world); ok {
+	if pla, ok := comp.PlayerTag.First(res.World); ok {
 
-		comp.EnemyTag.Each(world, func(e *donburi.Entry) {
+		comp.EnemyTag.Each(res.World, func(e *donburi.Entry) {
 
 			playerBody := comp.Body.Get(pla)
 			ene := comp.Body.Get(e)
@@ -77,10 +72,10 @@ func (ps *PhysicsSystem) Update(world donburi.World, space *cm.Space) {
 		})
 
 	}
-	space.Step(ps.DT)
+	res.Space.Step(ps.DT)
 }
 
-func (ps *PhysicsSystem) Draw(world donburi.World, space *cm.Space, screen *ebiten.Image) {}
+func (ps *PhysicsSystem) Draw() {}
 
 // Player <-> Collectible
 func (ps *PhysicsSystem) PlayerCollectibleCollisionBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {
@@ -104,7 +99,7 @@ func (ps *PhysicsSystem) PlayerCollectibleCollisionBegin(arb *cm.Arbiter, space 
 		if !slices.Contains(inventory.Keys, keyNum) {
 			inventory.Keys = append(inventory.Keys, keyNum)
 		}
-		comp.Door.Each(ps.world, func(e *donburi.Entry) {
+		comp.Door.Each(res.World, func(e *donburi.Entry) {
 			door := comp.Door.Get(e)
 			if door.LockNumber == keyNum {
 				door.PlayerHasKey = true
@@ -171,9 +166,9 @@ func PlayerDoorExit(arb *cm.Arbiter, space *cm.Space, userData interface{}) {
 	d.Open = false
 	doorBody.FirstShape().SetSensor(false)
 
-	for _, room := range Rooms {
+	for _, room := range res.Rooms {
 		if room.ContainsVect(playerBody.Position()) {
-			CurrentRoom = room
+			res.CurrentRoom = room
 		}
 	}
 

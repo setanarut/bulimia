@@ -5,14 +5,12 @@ import (
 	"bulimia/comp"
 	"bulimia/engine"
 	"bulimia/engine/cm"
+	"bulimia/res"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/yohamta/donburi"
 )
-
-var Rooms []cm.BB
-var CurrentRoom cm.BB
 
 type EntitySpawnSystem struct {
 	cam *engine.Camera
@@ -26,45 +24,44 @@ func NewEntitySpawnSystem() *EntitySpawnSystem {
 	}
 }
 
-func (sys *EntitySpawnSystem) Init(world donburi.World, space *cm.Space, scr cm.BB) {
-	e := arche.SpawnCamera(scr.Center(), scr.R, scr.T, world)
+func (sys *EntitySpawnSystem) Init() {
+	e := arche.SpawnCamera(res.ScreenBox.Center(), res.ScreenBox.R, res.ScreenBox.T)
 	sys.cam = comp.Camera.Get(e)
+	res.CurrentRoom = res.ScreenBox
 
-	Rooms = make([]cm.BB, 0)
-	Rooms = append(Rooms, scr)                            // middle 0
-	Rooms = append(Rooms, scr.Offset(cm.Vec2{0, scr.T}))  // top 1
-	Rooms = append(Rooms, scr.Offset(cm.Vec2{0, -scr.T})) // bottom 2
-	Rooms = append(Rooms, scr.Offset(cm.Vec2{-scr.R, 0})) // left 3
-	Rooms = append(Rooms, scr.Offset(cm.Vec2{scr.R, 0}))  // right 4
+	res.Rooms = make([]cm.BB, 0)
+	res.Rooms = append(res.Rooms, res.CurrentRoom)                                        // middle 0
+	res.Rooms = append(res.Rooms, res.CurrentRoom.Offset(cm.Vec2{0, res.CurrentRoom.T}))  // top 1
+	res.Rooms = append(res.Rooms, res.CurrentRoom.Offset(cm.Vec2{0, -res.CurrentRoom.T})) // bottom 2
+	res.Rooms = append(res.Rooms, res.CurrentRoom.Offset(cm.Vec2{-res.CurrentRoom.R, 0})) // left 3
+	res.Rooms = append(res.Rooms, res.CurrentRoom.Offset(cm.Vec2{res.CurrentRoom.R, 0}))  // right 4
 
-	CurrentRoom = scr
-	arche.SpawnRoom(world, space, Rooms[0], arche.RoomOptions{true, true, true, true, 1, 2, 3, 4})
-	arche.SpawnRoom(world, space, Rooms[1], arche.RoomOptions{true, false, true, true, 5, -1, 6, 7})
-	arche.SpawnRoom(world, space, Rooms[2], arche.RoomOptions{false, true, true, true, -1, 8, 9, 10})
-	arche.SpawnRoom(world, space, Rooms[3], arche.RoomOptions{true, true, true, false, 11, 12, 13, -1})
-	arche.SpawnRoom(world, space, Rooms[4], arche.RoomOptions{true, true, false, true, 14, 15, -1, 16})
+	arche.SpawnRoom(res.Rooms[0], arche.RoomOptions{true, true, true, true, 1, 2, 3, 4})
+	arche.SpawnRoom(res.Rooms[1], arche.RoomOptions{true, false, true, true, 5, -1, 6, 7})
+	arche.SpawnRoom(res.Rooms[2], arche.RoomOptions{false, true, true, true, -1, 8, 9, 10})
+	arche.SpawnRoom(res.Rooms[3], arche.RoomOptions{true, true, true, false, 11, 12, 13, -1})
+	arche.SpawnRoom(res.Rooms[4], arche.RoomOptions{true, true, false, true, 14, 15, -1, 16})
 
-	arche.SpawnPlayer(0.1, 0.3, 0, 20, world, space, scr.Center().Add(cm.Vec2{0, -120}))
-
-	arche.SpawnWall(world, space, CurrentRoom.Center(), 100, 100)
+	arche.SpawnPlayer(0.1, 0.3, 0, 20, res.CurrentRoom.Center().Add(cm.Vec2{0, -120}))
+	arche.SpawnWall(res.CurrentRoom.Center(), 100, 100)
 
 	// top room
 	for i := 5; i < 8; i++ {
-		arche.SpawnDefaultEnemy(world, space, engine.RandomPointInBB(Rooms[1], 20))
-		// arche.DefaultKeyCollectible(i, world, space, engine.RandomPointInBB(Rooms[1], 20))
+		arche.SpawnDefaultEnemy(engine.RandomPointInBB(res.Rooms[1], 20))
+		// arche.DefaultKeyCollectible(i,  engine.RandomPointInBB(resources.Rooms[1], 20))
 	}
 	// center room
 	for i := 1; i < 5; i++ {
-		arche.SpawnDefaultEnemy(world, space, engine.RandomPointInBB(Rooms[0], 20))
-		arche.SpawnDefaultKeyCollectible(i, world, space, engine.RandomPointInBB(Rooms[0], 20))
+		arche.SpawnDefaultEnemy(engine.RandomPointInBB(res.Rooms[0], 20))
+		arche.SpawnDefaultKeyCollectible(i, engine.RandomPointInBB(res.Rooms[0], 20))
 	}
 	// bottom room
 	for i := 8; i < 11; i++ {
-		arche.SpawnDefaultEnemy(world, space, engine.RandomPointInBB(Rooms[2], 20))
-		// arche.DefaultKeyCollectible(i, world, space, engine.RandomPointInBB(Rooms[2], 20))
+		arche.SpawnDefaultEnemy(engine.RandomPointInBB(res.Rooms[2], 20))
+		// arche.DefaultKeyCollectible(i,  engine.RandomPointInBB(resources.Rooms[2], 20))
 	}
 
-	world.OnRemove(func(world donburi.World, entity donburi.Entity) {
+	res.World.OnRemove(func(world donburi.World, entity donburi.Entity) {
 		e := world.Entry(entity)
 
 		// adds trauma to the camera when the bomb is removed
@@ -74,52 +71,52 @@ func (sys *EntitySpawnSystem) Init(world donburi.World, space *cm.Space, scr cm.
 		// adds trauma to the camera when the bomb is removed
 		if e.HasComponent(comp.EnemyTag) {
 			p := comp.Body.Get(e).Position()
-			arche.SpawnCollectible(comp.Food, 10, -1, 10, world, space, p)
+			arche.SpawnCollectible(comp.Food, 10, -1, 10, p)
 		}
 
 	})
 
 }
 
-func (sys *EntitySpawnSystem) Update(world donburi.World, space *cm.Space) {
+func (sys *EntitySpawnSystem) Update() {
 
 	worldPos := sys.cam.ScreenToWorld(ebiten.CursorPosition())
-	cursor := engine.InvPosVectY(worldPos, CurrentRoom.T)
+	cursor := engine.InvPosVectY(worldPos, res.CurrentRoom.T)
 
 	if inpututil.IsKeyJustPressed(ebiten.Key1) {
-		arche.SpawnDefaultBomb(world, space, cursor)
+		arche.SpawnDefaultBomb(cursor)
 	}
 	if inpututil.IsKeyJustPressed(ebiten.Key2) {
-		arche.SpawnDefaultEnemy(world, space, cursor)
+		arche.SpawnDefaultEnemy(cursor)
 	}
 	if inpututil.IsKeyJustPressed(ebiten.Key3) {
-		arche.SpawnRandomCollectible(world, space, cursor)
+		arche.SpawnRandomCollectible(cursor)
 	}
 	if inpututil.IsKeyJustPressed(ebiten.Key4) {
-		arche.SpawnWall(world, space, cursor, 200, 20)
+		arche.SpawnWall(cursor, 200, 20)
 
 	}
 	if inpututil.IsKeyJustPressed(ebiten.Key5) {
-		arche.SpawnWall(world, space, cursor, 20, 200)
+		arche.SpawnWall(cursor, 20, 200)
 
 	}
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyF) {
 
 		for range 10 {
-			arche.SpawnDefaultEnemy(world, space, engine.RandomPointInBB(CurrentRoom, 64))
+			arche.SpawnDefaultEnemy(engine.RandomPointInBB(res.CurrentRoom, 64))
 		}
 
 	}
 	if inpututil.IsKeyJustPressed(ebiten.KeyG) {
 
 		for range 10 {
-			arche.SpawnDefaultBomb(world, space, engine.RandomPointInBB(CurrentRoom, 64))
+			arche.SpawnDefaultBomb(engine.RandomPointInBB(res.CurrentRoom, 64))
 		}
 
 	}
 
 }
 
-func (sys *EntitySpawnSystem) Draw(world donburi.World, space *cm.Space, screen *ebiten.Image) {
+func (sys *EntitySpawnSystem) Draw() {
 }

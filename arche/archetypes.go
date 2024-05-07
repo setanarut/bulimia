@@ -4,29 +4,29 @@ import (
 	"bulimia/comp"
 	"bulimia/engine"
 	"bulimia/engine/cm"
-	"bulimia/resources"
+	"bulimia/res"
 	"image/color"
 
 	"github.com/yohamta/donburi"
 	"golang.org/x/image/colornames"
 )
 
-func SpawnBody(m, e, f, r float64, world donburi.World, space *cm.Space, pos cm.Vec2) *donburi.Entry {
+func SpawnBody(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 	body := cm.NewBody(m, cm.MomentForCircle(m, 0, r*2, cm.Vec2{}))
 	shape := cm.NewCircle(body, r, cm.Vec2{})
 	shape.SetElasticity(e)
 	shape.SetFriction(f)
-	space.AddShape(shape)
-	space.AddBody(shape.Body())
+	res.Space.AddShape(shape)
+	res.Space.AddBody(shape.Body())
 	body.SetPosition(pos)
-	bodyEntry := world.Entry(world.Create(comp.Body))
+	bodyEntry := res.World.Entry(res.World.Create(comp.Body))
 	body.UserData = bodyEntry
 	comp.Body.Set(bodyEntry, body)
 	return bodyEntry
 }
 
-func SpawnPlayer(m, e, f, r float64, world donburi.World, space *cm.Space, pos cm.Vec2) *donburi.Entry {
-	entry := SpawnBody(m, e, f, r, world, space, pos)
+func SpawnPlayer(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
+	entry := SpawnBody(m, e, f, r, pos)
 	body := comp.Body.Get(entry)
 	body.FirstShape().SetCollisionType(CollisionTypePlayer)
 	body.FirstShape().Filter = cm.NewShapeFilter(0, BitmaskPlayer, cm.AllCategories&^BitmaskFood)
@@ -39,7 +39,7 @@ func SpawnPlayer(m, e, f, r float64, world donburi.World, space *cm.Space, pos c
 
 	render := comp.Render.Get(entry)
 
-	render.AnimPlayer = engine.NewAnimationPlayer(resources.Pacman)
+	render.AnimPlayer = engine.NewAnimationPlayer(res.Pacman)
 	w := 100
 	render.AnimPlayer.AddStateAnimation("shootR", 0, 0, w, w, 1, true)
 	render.AnimPlayer.AddStateAnimation("shootL", 0, w, w, w, 1, true)
@@ -58,8 +58,8 @@ func SpawnPlayer(m, e, f, r float64, world donburi.World, space *cm.Space, pos c
 	return entry
 }
 
-func SpawnEnemy(m, e, f, r, viewRadius float64, world donburi.World, space *cm.Space, pos cm.Vec2) *donburi.Entry {
-	entry := SpawnBody(m, e, f, r, world, space, pos)
+func SpawnEnemy(m, e, f, r, viewRadius float64, pos cm.Vec2) *donburi.Entry {
+	entry := SpawnBody(m, e, f, r, pos)
 	body := comp.Body.Get(entry)
 	body.SetMoment(cm.Intinity)
 
@@ -75,7 +75,7 @@ func SpawnEnemy(m, e, f, r, viewRadius float64, world donburi.World, space *cm.S
 	render := comp.Render.Get(entry)
 	liv := comp.Living.Get(entry)
 	liv.Speed = 480
-	render.AnimPlayer = engine.NewAnimationPlayer(resources.Enemy)
+	render.AnimPlayer = engine.NewAnimationPlayer(res.Enemy)
 	render.AnimPlayer.AddStateAnimation("idle", 200, 0, 100, 100, 1, false)
 	render.DrawScale = engine.GetCircleScaleFactor(r, render.AnimPlayer.CurrentFrame)
 	render.Offset = engine.GetEbitenImageOffset(render.AnimPlayer.CurrentFrame)
@@ -83,8 +83,8 @@ func SpawnEnemy(m, e, f, r, viewRadius float64, world donburi.World, space *cm.S
 	return entry
 }
 
-func SpawnBomb(m, e, f, r float64, world donburi.World, space *cm.Space, pos cm.Vec2) *donburi.Entry {
-	entry := SpawnBody(m, e, f, r, world, space, pos)
+func SpawnBomb(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
+	entry := SpawnBody(m, e, f, r, pos)
 	body := comp.Body.Get(entry)
 	body.FirstShape().SetCollisionType(CollisionTypeBomb)
 	body.FirstShape().Filter = cm.NewShapeFilter(0, BitmaskBomb, cm.AllCategories)
@@ -94,7 +94,7 @@ func SpawnBomb(m, e, f, r float64, world donburi.World, space *cm.Space, pos cm.
 
 	render := comp.Render.Get(entry)
 
-	render.AnimPlayer = engine.NewAnimationPlayer(resources.Items)
+	render.AnimPlayer = engine.NewAnimationPlayer(res.Items)
 	render.AnimPlayer.AddStateAnimation("idle", 0, 0, 100, 100, 1, false)
 	render.DrawScale = engine.GetCircleScaleFactor(r, render.AnimPlayer.CurrentFrame)
 	render.Offset = engine.GetEbitenImageOffset(render.AnimPlayer.CurrentFrame)
@@ -104,8 +104,8 @@ func SpawnBomb(m, e, f, r float64, world donburi.World, space *cm.Space, pos cm.
 }
 
 // SpawnFood e: elastiklik f: friction
-func SpawnFood(m, e, f, r float64, world donburi.World, space *cm.Space, pos cm.Vec2) *donburi.Entry {
-	entry := SpawnBody(m, e, f, r, world, space, pos)
+func SpawnFood(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
+	entry := SpawnBody(m, e, f, r, pos)
 	body := comp.Body.Get(entry)
 	body.FirstShape().SetCollisionType(CollisionTypeFood)
 	body.FirstShape().Filter = cm.NewShapeFilter(0, BitmaskFood, cm.AllCategories)
@@ -116,7 +116,7 @@ func SpawnFood(m, e, f, r float64, world donburi.World, space *cm.Space, pos cm.
 
 	render := comp.Render.Get(entry)
 
-	render.AnimPlayer = engine.NewAnimationPlayer(resources.Items)
+	render.AnimPlayer = engine.NewAnimationPlayer(res.Items)
 	render.AnimPlayer.AddStateAnimation("idle", 200, 0, 100, 100, 1, false)
 	render.DrawScale = engine.GetCircleScaleFactor(r, render.AnimPlayer.CurrentFrame)
 	render.Offset = engine.GetEbitenImageOffset(render.AnimPlayer.CurrentFrame)
@@ -125,7 +125,7 @@ func SpawnFood(m, e, f, r float64, world donburi.World, space *cm.Space, pos cm.
 	return entry
 }
 
-func SpawnWall(world donburi.World, space *cm.Space, boxCenter cm.Vec2, boxW, boxH float64) *donburi.Entry {
+func SpawnWall(boxCenter cm.Vec2, boxW, boxH float64) *donburi.Entry {
 
 	sbody := cm.NewStaticBody()
 	wallShape := cm.NewBox(sbody, boxW, boxH, 0)
@@ -134,11 +134,11 @@ func SpawnWall(world donburi.World, space *cm.Space, boxCenter cm.Vec2, boxW, bo
 	wallShape.SetElasticity(0)
 	wallShape.SetFriction(0)
 	sbody.SetPosition(boxCenter)
-	space.AddShape(wallShape)
-	space.AddBody(wallShape.Body())
+	res.Space.AddShape(wallShape)
+	res.Space.AddBody(wallShape.Body())
 
 	// components
-	entry := world.Entry(world.Create(
+	entry := res.World.Entry(res.World.Create(
 		comp.Body,
 		comp.WallTag,
 		comp.Render,
@@ -148,8 +148,8 @@ func SpawnWall(world donburi.World, space *cm.Space, boxCenter cm.Vec2, boxW, bo
 
 	render := comp.Render.Get(entry)
 
-	render.AnimPlayer = engine.NewAnimationPlayer(resources.Wall)
-	imW := resources.Wall.Bounds().Dx()
+	render.AnimPlayer = engine.NewAnimationPlayer(res.Wall)
+	imW := res.Wall.Bounds().Dx()
 	render.AnimPlayer.AddStateAnimation("idle", 0, 0, imW, imW, 1, false)
 	render.DrawScale = engine.GetBoxScaleFactor(float64(imW), float64(imW), boxW, boxH)
 	render.Offset = engine.GetEbitenImageOffset(render.AnimPlayer.CurrentFrame)
@@ -157,8 +157,7 @@ func SpawnWall(world donburi.World, space *cm.Space, boxCenter cm.Vec2, boxW, bo
 	render.ScaleColor = colornames.Blue
 	return entry
 }
-func SpawnDoor(world donburi.World,
-	space *cm.Space,
+func SpawnDoor(
 	boxCenter cm.Vec2,
 	boxW,
 	boxH float64,
@@ -172,11 +171,11 @@ func SpawnDoor(world donburi.World,
 	shape.SetFriction(0)
 	shape.CollisionType = CollisionTypeDoor
 	sbody.SetPosition(boxCenter)
-	space.AddShape(shape)
-	space.AddBody(shape.Body())
+	res.Space.AddShape(shape)
+	res.Space.AddBody(shape.Body())
 
 	// components
-	entry := world.Entry(world.Create(
+	entry := res.World.Entry(res.World.Create(
 		comp.Body,
 		comp.Door,
 		comp.Render,
@@ -187,8 +186,8 @@ func SpawnDoor(world donburi.World,
 
 	render := comp.Render.Get(entry)
 
-	render.AnimPlayer = engine.NewAnimationPlayer(resources.Wall)
-	imW := resources.Wall.Bounds().Dx()
+	render.AnimPlayer = engine.NewAnimationPlayer(res.Wall)
+	imW := res.Wall.Bounds().Dx()
 	render.AnimPlayer.AddStateAnimation("idle", 0, 0, imW, imW, 1, false)
 	render.DrawScale = engine.GetBoxScaleFactor(float64(imW), float64(imW), boxW, boxH)
 	render.Offset = engine.GetEbitenImageOffset(render.AnimPlayer.CurrentFrame)
@@ -197,9 +196,9 @@ func SpawnDoor(world donburi.World,
 }
 
 func SpawnCollectible(itemType comp.ItemType, count, keyNumber int,
-	r float64, world donburi.World, s *cm.Space, pos cm.Vec2) *donburi.Entry {
+	r float64, pos cm.Vec2) *donburi.Entry {
 
-	entry := SpawnBody(1, 0, 1, r, world, s, pos)
+	entry := SpawnBody(1, 0, 1, r, pos)
 	body := comp.Body.Get(entry)
 	body.FirstShape().Filter = cm.NewShapeFilter(0, BitmaskCollectible, BitmaskPlayer|BitmaskWall|BitmaskCollectible)
 	body.FirstShape().SetCollisionType(CollisionTypeCollectible)
@@ -217,16 +216,16 @@ func SpawnCollectible(itemType comp.ItemType, count, keyNumber int,
 	switch itemType {
 
 	case comp.Bomb:
-		ap = engine.NewAnimationPlayer(resources.Items)
+		ap = engine.NewAnimationPlayer(res.Items)
 		ap.AddStateAnimation("idle", 0, 0, 100, 100, 1, false)
 	case comp.Key:
-		ap = engine.NewAnimationPlayer(resources.Items)
+		ap = engine.NewAnimationPlayer(res.Items)
 		ap.AddStateAnimation("idle", 100, 0, 100, 100, 1, false)
 	case comp.Food:
-		ap = engine.NewAnimationPlayer(resources.Items)
+		ap = engine.NewAnimationPlayer(res.Items)
 		ap.AddStateAnimation("idle", 200, 0, 100, 100, 1, false)
 	default:
-		ap = engine.NewAnimationPlayer(resources.Items)
+		ap = engine.NewAnimationPlayer(res.Items)
 		ap.AddStateAnimation("idle", 200, 0, 100, 100, 1, false)
 
 	}
@@ -242,15 +241,15 @@ func SpawnCollectible(itemType comp.ItemType, count, keyNumber int,
 	return entry
 }
 
-func SpawnCamera(lookAt cm.Vec2, width, height float64, w donburi.World) *donburi.Entry {
-	e := w.Entry(w.Create(comp.Camera))
+func SpawnCamera(lookAt cm.Vec2, width, height float64) *donburi.Entry {
+	e := res.World.Entry(res.World.Create(comp.Camera))
 	cam := engine.NewCamera(lookAt, width, height)
 	cam.Lerp = true
 	comp.Camera.Set(e, cam)
 	return e
 }
 
-func SpawnRoom(world donburi.World, space *cm.Space, roomBB cm.BB, opts RoomOptions) {
+func SpawnRoom(roomBB cm.BB, opts RoomOptions) {
 
 	topDoorLength := roomBB.Width() / 5
 	leftDoorLength := roomBB.Height() / 5
@@ -274,30 +273,30 @@ func SpawnRoom(world donburi.World, space *cm.Space, roomBB cm.BB, opts RoomOpti
 
 	// Top Wall
 	if opts.TopWall {
-		SpawnWall(world, space, topLeftWallCenter, topDoorLength*2, 10)
-		SpawnDoor(world, space, topDoorCenter, topDoorLength, 10, opts.TopDoorKeyNumber)
-		SpawnWall(world, space, topRightWallCenter, topDoorLength*2, 10)
+		SpawnWall(topLeftWallCenter, topDoorLength*2, 10)
+		SpawnDoor(topDoorCenter, topDoorLength, 10, opts.TopDoorKeyNumber)
+		SpawnWall(topRightWallCenter, topDoorLength*2, 10)
 	}
 
 	// Bottom Wall
 	if opts.BottomWall {
-		SpawnWall(world, space, bottomLeftWallCenter, topDoorLength*2, 10)
-		SpawnDoor(world, space, bottomDoorCenter, topDoorLength, 10, opts.BottomDoorKeyNumber)
-		SpawnWall(world, space, bottomRightWallCenter, topDoorLength*2, 10)
+		SpawnWall(bottomLeftWallCenter, topDoorLength*2, 10)
+		SpawnDoor(bottomDoorCenter, topDoorLength, 10, opts.BottomDoorKeyNumber)
+		SpawnWall(bottomRightWallCenter, topDoorLength*2, 10)
 	}
 
 	// Left Wall
 	if opts.LeftWall {
-		SpawnWall(world, space, leftDoorTop, 10, leftDoorLength*2)
-		SpawnDoor(world, space, leftDoorCenter, 10, leftDoorLength, opts.LeftDoorKeyNumber)
-		SpawnWall(world, space, leftDoorBottom, 10, leftDoorLength*2)
+		SpawnWall(leftDoorTop, 10, leftDoorLength*2)
+		SpawnDoor(leftDoorCenter, 10, leftDoorLength, opts.LeftDoorKeyNumber)
+		SpawnWall(leftDoorBottom, 10, leftDoorLength*2)
 	}
 
 	// Right Wall
 	if opts.RightWall {
-		SpawnWall(world, space, rightDoorTop, 10, leftDoorLength*2)
-		SpawnDoor(world, space, rightDoorCenter, 10, leftDoorLength, opts.RightDoorKeyNumber)
-		SpawnWall(world, space, rightDoorBottom, 10, leftDoorLength*2)
+		SpawnWall(rightDoorTop, 10, leftDoorLength*2)
+		SpawnDoor(rightDoorCenter, 10, leftDoorLength, opts.RightDoorKeyNumber)
+		SpawnWall(rightDoorBottom, 10, leftDoorLength*2)
 	}
 }
 
