@@ -2,16 +2,6 @@
 
 Open source top-down 2D game prototype
 
+play demo: https://setanarut.github.io/bulimia/
 
-![ss](https://github.com/setanarut/bulimia/assets/36481442/f4cc2bb1-bafb-47f0-9587-9de3d2c852eb)
-
-
-### Controls 
-
-- Movement: `WASD`
-- Shooting: `Arrow Keys`
-- Spawn the object at cursor: `1-2-3-4-5`
-- Drop Bomb: Hold down`Space` and `Arrow Keys`
-- Detonate bombs: `Q`
-- Spawn enemies: `F`
-- Enemy AI on/off: `C`
+![ss](https://github.com/setanarut/bulimia/assets/36481442/41c96e9c-c0e6-4d63-966f-2df3abcab166)
