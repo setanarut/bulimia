@@ -9,6 +9,7 @@
 *.dylib
 
 /_cmd
+/wasm
 
 # Test binary, built with `go test -c`
 *.test
