@@ -9,7 +9,9 @@ import (
 	_ "image/png"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/text/v2"
 	"github.com/yohamta/donburi"
+	"golang.org/x/text/language"
 )
 
 //go:embed assets/*
@@ -28,15 +30,21 @@ var (
 )
 
 var (
-	Wall     = ebiten.NewImage(30, 30)
-	Pacman   = engine.LoadImage("assets/pac.png", assets)
-	Items    = engine.LoadImage("assets/items.png", assets)
-	Enemy    = engine.LoadImage("assets/enemy.png", assets)
-	FontFace = engine.LoadTextFace("assets/iosevka.ttf", 20, assets)
+	Wall       = ebiten.NewImage(30, 30)
+	Pacman     = engine.LoadImage("assets/pac.png", assets)
+	Items      = engine.LoadImage("assets/items.png", assets)
+	Enemy      = engine.LoadImage("assets/enemy.png", assets)
+	Iosevka    = engine.LoadTextFace("assets/iosevka.ttf", 25, assets)
+	IosevkaBig = &text.GoTextFace{
+		Source:   Iosevka.Source,
+		Size:     35,
+		Language: language.Turkish,
+	}
 )
 
 func init() {
 	Wall.Fill(color.White)
+
 }
 
 func PlayerVelocityFunc(body *cm.Body, _ cm.Vec2, _, dt float64) {

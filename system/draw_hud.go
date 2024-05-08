@@ -27,16 +27,15 @@ func NewDrawHUDSystem() *DrawHUDSystem {
 }
 func (hs *DrawHUDSystem) Init() {
 	hs.statsTextOptions.ColorScale.ScaleWithColor(colornames.White)
-	hs.statsTextOptions.LineSpacing = res.FontFace.Size * 1.2
+	hs.statsTextOptions.LineSpacing = res.Iosevka.Size * 1.2
 	hs.statsTextOptions.GeoM.Translate(30, 25)
 	hs.statsTextOptions.Filter = ebiten.FilterLinear
 
 	hs.centerTextOptions.LayoutOptions.PrimaryAlign = text.AlignCenter
 	hs.centerTextOptions.LayoutOptions.SecondaryAlign = text.AlignCenter
 	hs.centerTextOptions.Filter = ebiten.FilterLinear
-	hs.centerTextOptions.LineSpacing = res.FontFace.Size * 1.2
+	hs.centerTextOptions.LineSpacing = res.IosevkaBig.Size * 1.2
 	center := res.ScreenBox.Center()
-	hs.centerTextOptions.GeoM.Scale(2, 2)
 	hs.centerTextOptions.GeoM.Translate(center.X, center.Y)
 
 }
@@ -63,17 +62,17 @@ func (hs *DrawHUDSystem) Draw() {
 						playerInventory.Keys,
 						liv.Health,
 					),
-					res.FontFace,
+					res.Iosevka,
 					hs.statsTextOptions)
 			} else {
-				text.Draw(res.Screen, "You are dead \n Press Backspace key to restart", res.FontFace, hs.centerTextOptions)
+				text.Draw(res.Screen, "You are dead \n Press Backspace key to restart", res.IosevkaBig, hs.centerTextOptions)
 			}
 		}
 	} else {
 
 		// unfocused
 		if true {
-			text.Draw(res.Screen, "PAUSED\n Click to resume", res.FontFace, hs.centerTextOptions)
+			text.Draw(res.Screen, "PAUSED\n Click to resume", res.IosevkaBig, hs.centerTextOptions)
 		}
 
 	}
@@ -89,7 +88,7 @@ func (hs *DrawHUDSystem) Draw() {
 				ebiten.ActualTPS(),
 				ebiten.ActualFPS(),
 			),
-			res.FontFace,
+			res.Iosevka,
 			hs.statsTextOptions)
 	}
 
