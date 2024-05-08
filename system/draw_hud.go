@@ -77,13 +77,14 @@ func (hs *DrawHUDSystem) Draw() {
 
 	}
 
-	// debug
+	// FPS/TPS Debug text
 	if false {
 		text.Draw(
 			res.Screen,
 			fmt.Sprintf(
-				"bodies : %d \nentities : %d \nActualTPS : %v \nActualFPS : %v",
+				"DynamicBodies : %d\nStaticBodies : %dEntities : %d\nActualTPS : %v\nActualFPS : %v",
 				len(res.Space.DynamicBodies),
+				len(res.Space.StaticBodies),
 				res.World.Len(),
 				ebiten.ActualTPS(),
 				ebiten.ActualFPS(),

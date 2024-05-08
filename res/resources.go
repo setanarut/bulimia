@@ -34,7 +34,7 @@ var (
 	Pacman     = engine.LoadImage("assets/pac.png", assets)
 	Items      = engine.LoadImage("assets/items.png", assets)
 	Enemy      = engine.LoadImage("assets/enemy.png", assets)
-	Iosevka    = engine.LoadTextFace("assets/iosevka.ttf", 25, assets)
+	Iosevka    = engine.LoadTextFace("assets/iosevka.ttf", 20, assets)
 	IosevkaBig = &text.GoTextFace{
 		Source:   Iosevka.Source,
 		Size:     35,
@@ -47,7 +47,7 @@ func init() {
 
 }
 
-func PlayerVelocityFunc(body *cm.Body, _ cm.Vec2, _, dt float64) {
+func PlayerVelocityFunc(body *cm.Body, gravity cm.Vec2, damping float64, dt float64) {
 
 	entry, ok := body.UserData.(*donburi.Entry)
 
