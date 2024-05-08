@@ -10,6 +10,7 @@ import (
 	"slices"
 
 	"github.com/yohamta/donburi"
+	"golang.org/x/image/colornames"
 )
 
 type PhysicsSystem struct {
@@ -29,18 +30,22 @@ func (ps *PhysicsSystem) Init() {
 	res.Space.Damping = 0.01
 
 	// Player
-	res.Space.NewCollisionHandler(arche.CollisionTypePlayer, arche.CollisionTypeDoor).BeginFunc = PlayerDoorEnter
-	res.Space.NewCollisionHandler(arche.CollisionTypePlayer, arche.CollisionTypeDoor).SeparateFunc = PlayerDoorExit
-	res.Space.NewCollisionHandler(arche.CollisionTypePlayer, arche.CollisionTypeCollectible).BeginFunc = ps.PlayerCollectibleCollisionBegin
+	res.Space.NewCollisionHandler(arche.CollisionTypePlayer, arche.CollisionTypeDoor).BeginFunc = playerDoorEnter
+	res.Space.NewCollisionHandler(arche.CollisionTypePlayer, arche.CollisionTypeDoor).SeparateFunc = playerDoorExit
+	res.Space.NewCollisionHandler(arche.CollisionTypePlayer, arche.CollisionTypeCollectible).BeginFunc = playerCollectibleCollisionBegin
+
+	// Enemy
+	res.Space.NewCollisionHandler(arche.CollisionTypeEnemy, arche.CollisionTypePlayer).PostSolveFunc = enemyPlayerPostSolve
+	res.Space.NewCollisionHandler(arche.CollisionTypeEnemy, arche.CollisionTypePlayer).SeparateFunc = enemyPlayerSep
 
 	// Food
-	res.Space.NewCollisionHandler(arche.CollisionTypeFood, arche.CollisionTypeEnemy).BeginFunc = FoodEnemyCollisionBegin
-	res.Space.NewCollisionHandler(arche.CollisionTypeFood, arche.CollisionTypeBomb).BeginFunc = FoodBombCollisionBegin
-	res.Space.NewCollisionHandler(arche.CollisionTypeFood, arche.CollisionTypeWall).BeginFunc = FoodWallCollisionBegin
-	res.Space.NewCollisionHandler(arche.CollisionTypeFood, arche.CollisionTypeDoor).BeginFunc = FoodDoorCollisionBegin
-	// resources.Space.NewCollisionHandler(arche.CollisionTypeFood, arche.CollisionTypeCollectible).BeginFunc = FoodCollectibleCollisionBegin
+	res.Space.NewCollisionHandler(arche.CollisionTypeFood, arche.CollisionTypeEnemy).BeginFunc = foodEnemyCollisionBegin
+	res.Space.NewCollisionHandler(arche.CollisionTypeFood, arche.CollisionTypeBomb).BeginFunc = foodBombCollisionBegin
+	res.Space.NewCollisionHandler(arche.CollisionTypeFood, arche.CollisionTypeWall).BeginFunc = foodWallCollisionBegin
+	res.Space.NewCollisionHandler(arche.CollisionTypeFood, arche.CollisionTypeDoor).BeginFunc = foodDoorCollisionBegin
 
 	res.Space.Step(ps.DT)
+
 }
 
 func (ps *PhysicsSystem) Update() {
@@ -78,39 +83,177 @@ func (ps *PhysicsSystem) Update() {
 func (ps *PhysicsSystem) Draw() {}
 
 // Player <-> Collectible
-func (ps *PhysicsSystem) PlayerCollectibleCollisionBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {
+func playerCollectibleCollisionBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {
 	playerBody, bodyCollectible := arb.Bodies()
-	playerEntry := playerBody.UserData.(*donburi.Entry)
-	collectibleEntry := bodyCollectible.UserData.(*donburi.Entry)
+	playerEntry, pok := playerBody.UserData.(*donburi.Entry)
+	collectibleEntry, cok := bodyCollectible.UserData.(*donburi.Entry)
 
-	inventory := comp.Inventory.Get(playerEntry)
-	collectibleComponent := comp.Collectible.Get(collectibleEntry)
+	if pok && cok {
 
-	if collectibleComponent.Type == comp.Food {
-		inventory.Foods += collectibleComponent.ItemCount
-	}
-	if collectibleComponent.Type == comp.Bomb {
-		inventory.Bombs += collectibleComponent.ItemCount
-	}
+		if playerEntry.Valid() && collectibleEntry.Valid() && collectibleEntry.HasComponent(comp.Collectible) && playerEntry.HasComponent(comp.Inventory) {
 
-	if collectibleComponent.Type == comp.Key {
-		// oyuncu anahtara sahip değilse ekle
-		keyNum := collectibleComponent.KeyNumber
-		if !slices.Contains(inventory.Keys, keyNum) {
-			inventory.Keys = append(inventory.Keys, keyNum)
-		}
-		comp.Door.Each(res.World, func(e *donburi.Entry) {
-			door := comp.Door.Get(e)
-			if door.LockNumber == keyNum {
-				door.PlayerHasKey = true
+			inventory := comp.Inventory.Get(playerEntry)
+			collectibleComponent := comp.Collectible.Get(collectibleEntry)
+
+			if collectibleComponent.Type == comp.Food {
+				inventory.Foods += collectibleComponent.ItemCount
+			}
+			if collectibleComponent.Type == comp.Bomb {
+				inventory.Bombs += collectibleComponent.ItemCount
 			}
 
-		})
+			if collectibleComponent.Type == comp.Key {
+				// oyuncu anahtara sahip değilse ekle
+				keyNum := collectibleComponent.KeyNumber
+				if !slices.Contains(inventory.Keys, keyNum) {
+					inventory.Keys = append(inventory.Keys, keyNum)
+				}
+
+				comp.Door.Each(res.World, func(e *donburi.Entry) {
+					door := comp.Door.Get(e)
+					if door.LockNumber == keyNum {
+						door.PlayerHasKey = true
+					}
+
+				})
+			}
+
+			DestroyBodyWithEntry(bodyCollectible)
+		}
 	}
 
-	DestroyBodyWithEntry(bodyCollectible)
-
 	return false
+}
+
+// Player <-> Door (enter)
+func playerDoorEnter(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {
+	playerBody, doorBody := arb.Bodies()
+
+	doorEntry := doorBody.UserData.(*donburi.Entry)
+	playerEntry := playerBody.UserData.(*donburi.Entry)
+	door := comp.Door.Get(doorEntry)
+	inv := comp.Inventory.Get(playerEntry)
+
+	if slices.Contains(inv.Keys, door.LockNumber) {
+		door.Open = true
+		doorBody.FirstShape().SetSensor(true)
+	}
+	return true
+}
+
+// Player <-> Door (exit)
+func playerDoorExit(arb *cm.Arbiter, space *cm.Space, userData interface{}) {
+	playerBody, doorBody := arb.Bodies()
+	doorEntry := doorBody.UserData.(*donburi.Entry)
+	d := comp.Door.Get(doorEntry)
+	d.Open = false
+	doorBody.FirstShape().SetSensor(false)
+
+	for _, room := range res.Rooms {
+		if room.ContainsVect(playerBody.Position()) {
+			res.CurrentRoom = room
+		}
+	}
+
+}
+
+// Enemy <-> Player
+func enemyPlayerPostSolve(arb *cm.Arbiter, space *cm.Space, userData interface{}) {
+	enemyBody, playerBody := arb.Bodies()
+	enemyEntry, eok := enemyBody.UserData.(*donburi.Entry)
+	playerEntry, pok := playerBody.UserData.(*donburi.Entry)
+	var livingData *comp.LivingData
+	if eok && pok {
+
+		if playerEntry.Valid() && enemyEntry.Valid() {
+			if playerEntry.HasComponent(comp.Living) && enemyEntry.HasComponent(comp.Damage) && playerEntry.HasComponent(comp.Render) {
+				livingData = comp.Living.Get(playerEntry)
+				comp.Render.Get(playerEntry).ScaleColor = colornames.Red
+				livingData.Health -= *comp.Damage.Get(enemyEntry)
+				if livingData.Health < 0 {
+					DestroyBodyWithEntry(playerBody)
+				}
+			}
+		}
+
+	}
+
+}
+
+// Enemy <-> Player Sep
+func enemyPlayerSep(arb *cm.Arbiter, space *cm.Space, userData interface{}) {
+	_, playerBody := arb.Bodies()
+	playerEntry := playerBody.UserData.(*donburi.Entry)
+	if playerEntry.Valid() {
+		comp.Render.Get(playerEntry).ScaleColor = colornames.Yellow
+	}
+
+}
+
+// Food <-> Enemy
+func foodEnemyCollisionBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {
+	bulletBody, enemyBody := arb.Bodies()
+	bulletEntry := bulletBody.UserData.(*donburi.Entry)
+	enemyEntry := enemyBody.UserData.(*donburi.Entry)
+
+	if enemyEntry.Valid() {
+
+		if enemyEntry.HasComponent(comp.Living) {
+			livingData := comp.Living.Get(enemyEntry)
+
+			if bulletEntry.Valid() {
+				livingData.Health -= *comp.Damage.Get(bulletEntry)
+			}
+
+			if livingData.Health < 0 {
+				DestroyBodyWithEntry(enemyBody)
+			}
+		}
+	}
+
+	// çarpan bulletı yok et
+	DestroyEntryWithBody(bulletEntry)
+	return true
+}
+
+// Food <-> Wall
+func foodWallCollisionBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {
+	Food, _ := arb.Bodies()
+	DestroyBodyWithEntry(Food)
+	return false
+}
+
+// Food <-> Bomb
+func foodBombCollisionBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {
+	food, bomb := arb.Bodies()
+	DestroyBodyWithEntry(food)
+	Explode(bomb.UserData.(*donburi.Entry))
+	return false
+}
+
+// Food <-> Door
+func foodDoorCollisionBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {
+	bodyA, _ := arb.Bodies()
+	bulletEntry := bodyA.UserData.(*donburi.Entry)
+	DestroyEntryWithBody(bulletEntry)
+	return true
+}
+
+func DestroyBodyWithEntry(b *cm.Body) {
+	s := b.FirstShape().Space()
+	if s.ContainsBody(b) {
+		e := b.UserData.(*donburi.Entry)
+		e.Remove()
+		s.AddPostStepCallback(removeBodyPostStep, b, false)
+	}
+}
+func DestroyEntryWithBody(entry *donburi.Entry) {
+	if entry.Valid() {
+		if entry.HasComponent(comp.Body) {
+			body := comp.Body.Get(entry)
+			DestroyBodyWithEntry(body)
+		}
+	}
 }
 
 func Explode(bomb *donburi.Entry) {
@@ -138,95 +281,8 @@ func Explode(bomb *donburi.Entry) {
 		}
 
 	})
-
+	res.Camera.AddTrauma(0.2)
 	DestroyEntryWithBody(bomb)
-}
-
-// Player <-> Door (enter)
-func PlayerDoorEnter(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {
-	playerBody, doorBody := arb.Bodies()
-
-	doorEntry := doorBody.UserData.(*donburi.Entry)
-	playerEntry := playerBody.UserData.(*donburi.Entry)
-	door := comp.Door.Get(doorEntry)
-	inv := comp.Inventory.Get(playerEntry)
-
-	if slices.Contains(inv.Keys, door.LockNumber) {
-		door.Open = true
-		doorBody.FirstShape().SetSensor(true)
-	}
-	return true
-}
-
-// Player <-> Door (exit)
-func PlayerDoorExit(arb *cm.Arbiter, space *cm.Space, userData interface{}) {
-	playerBody, doorBody := arb.Bodies()
-	doorEntry := doorBody.UserData.(*donburi.Entry)
-	d := comp.Door.Get(doorEntry)
-	d.Open = false
-	doorBody.FirstShape().SetSensor(false)
-
-	for _, room := range res.Rooms {
-		if room.ContainsVect(playerBody.Position()) {
-			res.CurrentRoom = room
-		}
-	}
-
-}
-
-// Food <-> Enemy
-func FoodEnemyCollisionBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {
-	bulletBody, enemyBody := arb.Bodies()
-	bulletEntry := bulletBody.UserData.(*donburi.Entry)
-	enemyEntry := enemyBody.UserData.(*donburi.Entry)
-
-	if enemyEntry.Valid() {
-
-		if enemyEntry.HasComponent(comp.Living) {
-			livingData := comp.Living.Get(enemyEntry)
-
-			if bulletEntry.Valid() {
-				livingData.Health -= *comp.Damage.Get(bulletEntry)
-			}
-
-			if livingData.Health < 0 {
-				DestroyBodyWithEntry(enemyBody)
-			}
-		}
-	}
-
-	// çarpan bulletı yok et
-	DestroyEntryWithBody(bulletEntry)
-	return true
-}
-
-// Food <-> Wall
-func FoodWallCollisionBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {
-	Food, _ := arb.Bodies()
-	DestroyBodyWithEntry(Food)
-	return false
-}
-
-// Food <-> Bomb
-func FoodBombCollisionBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {
-	food, bomb := arb.Bodies()
-	DestroyBodyWithEntry(food)
-	Explode(bomb.UserData.(*donburi.Entry))
-	return false
-}
-
-// Food <-> Collectible
-func FoodCollectibleCollisionBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {
-	arb.Ignore()
-	return false
-}
-
-// Food <-> Door
-func FoodDoorCollisionBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {
-	bodyA, _ := arb.Bodies()
-	bulletEntry := bodyA.UserData.(*donburi.Entry)
-	DestroyEntryWithBody(bulletEntry)
-	return true
 }
 
 func ApplyRaycastImpulse(sqi cm.SegmentQueryInfo, power float64) {
@@ -236,21 +292,4 @@ func ApplyRaycastImpulse(sqi cm.SegmentQueryInfo, power float64) {
 
 func removeBodyPostStep(space *cm.Space, body, data interface{}) {
 	space.RemoveBodyWithShapes(body.(*cm.Body))
-}
-
-func DestroyBodyWithEntry(b *cm.Body) {
-	s := b.FirstShape().Space()
-	if s.ContainsBody(b) {
-		e := b.UserData.(*donburi.Entry)
-		e.Remove()
-		s.AddPostStepCallback(removeBodyPostStep, b, false)
-	}
-}
-func DestroyEntryWithBody(entry *donburi.Entry) {
-	if entry.Valid() {
-		if entry.HasComponent(comp.Body) {
-			body := comp.Body.Get(entry)
-			DestroyBodyWithEntry(body)
-		}
-	}
 }

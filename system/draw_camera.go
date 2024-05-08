@@ -12,30 +12,25 @@ import (
 
 // DrawCameraSystem
 type DrawCameraSystem struct {
-	cam *engine.Camera
 }
 
 func NewDrawCameraSystem() *DrawCameraSystem {
-	dbs := &DrawCameraSystem{}
-	return dbs
+	return &DrawCameraSystem{}
 }
 
 func (ds *DrawCameraSystem) Init() {
-	if cam, ok := comp.Camera.First(res.World); ok {
-		ds.cam = comp.Camera.Get(cam)
-	}
 }
 
 func (ds *DrawCameraSystem) Update() {
 
 	if ebiten.IsKeyPressed(ebiten.KeyO) {
-		ds.cam.ZoomFactor -= 1
+		res.Camera.ZoomFactor -= 1
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyP) {
-		ds.cam.ZoomFactor += 1
+		res.Camera.ZoomFactor += 1
 	}
 
-	ds.cam.LookAt(engine.InvPosVectY(res.CurrentRoom.Center(), res.ScreenBox.T))
+	res.Camera.LookAt(engine.InvPosVectY(res.CurrentRoom.Center(), res.ScreenBox.T))
 
 	comp.Render.Each(res.World, func(e *donburi.Entry) {
 		comp.Render.Get(e).AnimPlayer.Update()
@@ -98,6 +93,6 @@ func (ds *DrawCameraSystem) DrawEntry(e *donburi.Entry) {
 	render.DIO.GeoM.Translate(pos.X, pos.Y)
 
 	render.DIO.ColorScale.ScaleWithColor(render.ScaleColor)
-	ds.cam.Draw(render.AnimPlayer.CurrentFrame, render.DIO, res.Screen)
+	res.Camera.Draw(render.AnimPlayer.CurrentFrame, render.DIO, res.Screen)
 	render.DIO.ColorScale.Reset()
 }

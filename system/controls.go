@@ -13,8 +13,6 @@ import (
 	"github.com/yohamta/donburi"
 )
 
-var Input *engine.InputManager = &engine.InputManager{}
-
 type PlayerControlSystem struct {
 	distance, bulletRadius float64
 	bulletTimer            *engine.Timer
@@ -28,19 +26,18 @@ func NewPlayerControlSystem() *PlayerControlSystem {
 }
 
 func (sys *PlayerControlSystem) Init() {
-	// set SetVelocityUpdateFunc
 	if playerEntry, ok := comp.PlayerTag.First(res.World); ok {
 		body := comp.Body.Get(playerEntry)
 		sys.distance = body.FirstShape().Class.(*cm.Circle).Radius()
-		body.SetVelocityUpdateFunc(sys.playerVelocityFunc)
+
 	}
 }
 
 func (sys *PlayerControlSystem) Update() {
 
 	// Input.UpdateJustArrowDirection()
-	Input.UpdateArrowDirection()
-	Input.UpdateWASDDirection()
+	res.Input.UpdateArrowDirection()
+	res.Input.UpdateWASDDirection()
 
 	if playerEntry, ok := comp.PlayerTag.First(res.World); ok {
 		inventory := comp.Inventory.Get(playerEntry)
@@ -49,7 +46,7 @@ func (sys *PlayerControlSystem) Update() {
 
 		playerPos := playerBody.Position()
 
-		if Input.ArrowDirection.Equal(engine.RightDirection) && !ebiten.IsKeyPressed(ebiten.KeySpace) {
+		if res.Input.ArrowDirection.Equal(engine.RightDirection) {
 			playerRenderData.AnimPlayer.SetState("shootR")
 
 			if inventory.Foods > 0 {
@@ -68,7 +65,7 @@ func (sys *PlayerControlSystem) Update() {
 			}
 		}
 
-		if Input.ArrowDirection.Equal(engine.LeftDirection) && !ebiten.IsKeyPressed(ebiten.KeySpace) {
+		if res.Input.ArrowDirection.Equal(engine.LeftDirection) {
 			playerRenderData.AnimPlayer.SetState("shootL")
 
 			if inventory.Foods > 0 {
@@ -87,7 +84,7 @@ func (sys *PlayerControlSystem) Update() {
 			}
 		}
 
-		if Input.ArrowDirection.Equal(engine.UpDirection) && !ebiten.IsKeyPressed(ebiten.KeySpace) {
+		if res.Input.ArrowDirection.Equal(engine.UpDirection) {
 			playerRenderData.AnimPlayer.SetState("shootU")
 
 			if inventory.Foods > 0 {
@@ -105,7 +102,7 @@ func (sys *PlayerControlSystem) Update() {
 
 		}
 
-		if Input.ArrowDirection == engine.DownDirection && !ebiten.IsKeyPressed(ebiten.KeySpace) {
+		if res.Input.ArrowDirection == engine.DownDirection {
 			playerRenderData.AnimPlayer.SetState("shootD")
 
 			if inventory.Foods > 0 {
@@ -123,43 +120,6 @@ func (sys *PlayerControlSystem) Update() {
 			}
 		}
 
-		if ebiten.IsKeyPressed(ebiten.KeySpace) && inpututil.IsKeyJustPressed(ebiten.KeyArrowRight) {
-			playerRenderData.AnimPlayer.SetState("shootR")
-
-			if inventory.Bombs > 0 {
-				arche.SpawnDefaultBomb(playerPos.Add(cm.Vec2{50, 0}))
-				inventory.Bombs -= 1
-
-			}
-		}
-		if ebiten.IsKeyPressed(ebiten.KeySpace) && inpututil.IsKeyJustPressed(ebiten.KeyArrowLeft) {
-			playerRenderData.AnimPlayer.SetState("shootL")
-
-			if inventory.Bombs > 0 {
-				arche.SpawnDefaultBomb(playerPos.Add(cm.Vec2{-50, 0}))
-				inventory.Bombs -= 1
-
-			}
-		}
-		if ebiten.IsKeyPressed(ebiten.KeySpace) && inpututil.IsKeyJustPressed(ebiten.KeyArrowUp) {
-			playerRenderData.AnimPlayer.SetState("shootU")
-
-			if inventory.Bombs > 0 {
-				arche.SpawnDefaultBomb(playerPos.Add(cm.Vec2{0, 50}))
-				inventory.Bombs -= 1
-
-			}
-		}
-		if ebiten.IsKeyPressed(ebiten.KeySpace) && inpututil.IsKeyJustPressed(ebiten.KeyArrowDown) {
-			playerRenderData.AnimPlayer.SetState("shootD")
-
-			if inventory.Bombs > 0 {
-				arche.SpawnDefaultBomb(playerPos.Add(cm.Vec2{0, -50}))
-				inventory.Bombs -= 1
-
-			}
-		}
-
 		if inpututil.IsKeyJustReleased(ebiten.KeyArrowUp) {
 			playerRenderData.AnimPlayer.SetState("up")
 		}
@@ -173,9 +133,9 @@ func (sys *PlayerControlSystem) Update() {
 			playerRenderData.AnimPlayer.SetState("right")
 		}
 
-		if Input.ArrowDirection.Equal(engine.NoDirection) {
+		if res.Input.ArrowDirection.Equal(engine.NoDirection) {
 
-			switch Input.WASDDirection {
+			switch res.Input.WASDDirection {
 
 			case engine.RightDirection:
 				playerRenderData.AnimPlayer.SetState("right")
@@ -193,21 +153,21 @@ func (sys *PlayerControlSystem) Update() {
 
 		}
 
-		// if inventory.Bombs > 0 {
+		if inventory.Bombs > 0 {
 
-		// 	// Bomba bırak
-		// 	if inpututil.IsKeyJustPressed(ebiten.KeyE) {
-		// 		bombPos := Input.LastPressedDirection.Mult(sys.distance)
-		// 		arche.SpawnDefaultBomb(world, space, playerPos.Add(bombPos))
-		// 		inventory.Bombs -= 1
-		// 	}
+			// Bomba bırak
+			if inpututil.IsKeyJustPressed(ebiten.KeyShiftRight) {
+				bombPos := res.Input.LastPressedDirection.Neg().Mult(sys.distance)
+				arche.SpawnDefaultBomb(playerPos.Add(bombPos))
+				inventory.Bombs -= 1
+			}
 
-		// }
+		}
 
 	}
 
 	// Explode all bombs
-	if inpututil.IsKeyJustPressed(ebiten.KeyQ) {
+	if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
 		comp.BombTag.Each(res.World, func(e *donburi.Entry) {
 			Explode(e)
 		})
@@ -222,28 +182,8 @@ func (sys *PlayerControlSystem) Update() {
 
 	}
 
-	// remove all enemies
-	if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) {
-		comp.EnemyTag.Each(res.World, func(e *donburi.Entry) {
-			DestroyEntryWithBody(e)
-		})
-	}
-
 	sys.bulletTimer.Update()
 }
 
 func (sys *PlayerControlSystem) Draw() {
-}
-
-func (sys *PlayerControlSystem) playerVelocityFunc(body *cm.Body, gravity cm.Vec2, damping, dt float64) {
-
-	entry, ok := body.UserData.(*donburi.Entry)
-
-	if ok {
-		if entry.Valid() {
-			livingData := comp.Living.Get(entry)
-			WASDAxisVector := Input.WASDDirection.Normalize().Mult(livingData.Speed)
-			body.SetVelocityVector(body.Velocity().LerpDistance(WASDAxisVector, livingData.Accel))
-		}
-	}
 }

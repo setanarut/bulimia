@@ -28,6 +28,7 @@ func SpawnBody(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 func SpawnPlayer(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 	entry := SpawnBody(m, e, f, r, pos)
 	body := comp.Body.Get(entry)
+	body.SetVelocityUpdateFunc(res.PlayerVelocityFunc)
 	body.FirstShape().SetCollisionType(CollisionTypePlayer)
 	body.FirstShape().Filter = cm.NewShapeFilter(0, BitmaskPlayer, cm.AllCategories&^BitmaskFood)
 	body.SetMoment(cm.Intinity)
@@ -58,7 +59,7 @@ func SpawnPlayer(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 	return entry
 }
 
-func SpawnEnemy(m, e, f, r, viewRadius float64, pos cm.Vec2) *donburi.Entry {
+func SpawnEnemy(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 	entry := SpawnBody(m, e, f, r, pos)
 	body := comp.Body.Get(entry)
 	body.SetMoment(cm.Intinity)
@@ -71,6 +72,9 @@ func SpawnEnemy(m, e, f, r, viewRadius float64, pos cm.Vec2) *donburi.Entry {
 	entry.AddComponent(comp.Living)
 	entry.AddComponent(comp.Render)
 	entry.AddComponent(comp.Gradient)
+	entry.AddComponent(comp.Damage)
+
+	comp.Damage.SetValue(entry, 0.2)
 
 	render := comp.Render.Get(entry)
 	liv := comp.Living.Get(entry)
@@ -157,12 +161,7 @@ func SpawnWall(boxCenter cm.Vec2, boxW, boxH float64) *donburi.Entry {
 	render.ScaleColor = colornames.Blue
 	return entry
 }
-func SpawnDoor(
-	boxCenter cm.Vec2,
-	boxW,
-	boxH float64,
-	lockNumber int) *donburi.Entry {
-
+func SpawnDoor(boxCenter cm.Vec2, boxW, boxH float64, lockNumber int) *donburi.Entry {
 	sbody := cm.NewStaticBody()
 	shape := cm.NewBox(sbody, boxW, boxH, 0)
 	shape.Filter = cm.NewShapeFilter(0, BitmaskDoor, cm.AllCategories)
@@ -200,7 +199,8 @@ func SpawnCollectible(itemType comp.ItemType, count, keyNumber int,
 
 	entry := SpawnBody(1, 0, 1, r, pos)
 	body := comp.Body.Get(entry)
-	body.FirstShape().Filter = cm.NewShapeFilter(0, BitmaskCollectible, BitmaskPlayer|BitmaskWall|BitmaskCollectible)
+	// body.FirstShape().Filter = cm.NewShapeFilter(0, BitmaskCollectible, BitmaskPlayer|BitmaskWall|BitmaskCollectible)
+	body.FirstShape().Filter = cm.NewShapeFilter(0, BitmaskCollectible, cm.AllCategories)
 	body.FirstShape().SetCollisionType(CollisionTypeCollectible)
 
 	entry.AddComponent(comp.Collectible)
@@ -239,14 +239,6 @@ func SpawnCollectible(itemType comp.ItemType, count, keyNumber int,
 	render.ScaleColor = colornames.Cyan
 
 	return entry
-}
-
-func SpawnCamera(lookAt cm.Vec2, width, height float64) *donburi.Entry {
-	e := res.World.Entry(res.World.Create(comp.Camera))
-	cam := engine.NewCamera(lookAt, width, height)
-	cam.Lerp = true
-	comp.Camera.Set(e, cam)
-	return e
 }
 
 func SpawnRoom(roomBB cm.BB, opts RoomOptions) {

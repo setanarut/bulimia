@@ -13,20 +13,15 @@ import (
 )
 
 type EntitySpawnSystem struct {
-	cam *engine.Camera
-	// spawnTimer          *engine.Timer
 }
 
 func NewEntitySpawnSystem() *EntitySpawnSystem {
 
-	return &EntitySpawnSystem{
-		// spawnTimer: engine.NewTimer(time.Second * 2),
-	}
+	return &EntitySpawnSystem{}
 }
 
 func (sys *EntitySpawnSystem) Init() {
-	e := arche.SpawnCamera(res.ScreenBox.Center(), res.ScreenBox.R, res.ScreenBox.T)
-	sys.cam = comp.Camera.Get(e)
+
 	res.CurrentRoom = res.ScreenBox
 
 	res.Rooms = make([]cm.BB, 0)
@@ -42,7 +37,7 @@ func (sys *EntitySpawnSystem) Init() {
 	arche.SpawnRoom(res.Rooms[3], arche.RoomOptions{true, true, true, false, 11, 12, 13, -1})
 	arche.SpawnRoom(res.Rooms[4], arche.RoomOptions{true, true, false, true, 14, 15, -1, 16})
 
-	arche.SpawnPlayer(0.1, 0.3, 0, 20, res.CurrentRoom.Center().Add(cm.Vec2{0, -120}))
+	arche.SpawnDefaultPlayer(res.CurrentRoom.Center().Add(cm.Vec2{0, -100}))
 	arche.SpawnWall(res.CurrentRoom.Center(), 100, 100)
 
 	// top room
@@ -63,12 +58,6 @@ func (sys *EntitySpawnSystem) Init() {
 
 	res.World.OnRemove(func(world donburi.World, entity donburi.Entity) {
 		e := world.Entry(entity)
-
-		// adds trauma to the camera when the bomb is removed
-		if e.HasComponent(comp.BombTag) {
-			sys.cam.AddTrauma(0.2)
-		}
-		// adds trauma to the camera when the bomb is removed
 		if e.HasComponent(comp.EnemyTag) {
 			p := comp.Body.Get(e).Position()
 			arche.SpawnCollectible(comp.Food, 10, -1, 10, p)
@@ -80,7 +69,12 @@ func (sys *EntitySpawnSystem) Init() {
 
 func (sys *EntitySpawnSystem) Update() {
 
-	worldPos := sys.cam.ScreenToWorld(ebiten.CursorPosition())
+	// Reset Level
+	if inpututil.IsKeyJustPressed(ebiten.KeyBackspace) {
+		ResetLevel()
+	}
+
+	worldPos := res.Camera.ScreenToWorld(ebiten.CursorPosition())
 	cursor := engine.InvPosVectY(worldPos, res.CurrentRoom.T)
 
 	if inpututil.IsKeyJustPressed(ebiten.Key1) {
@@ -119,4 +113,50 @@ func (sys *EntitySpawnSystem) Update() {
 }
 
 func (sys *EntitySpawnSystem) Draw() {
+}
+
+func ResetLevel() {
+	res.CurrentRoom = res.ScreenBox
+	res.Camera.LookAt(res.CurrentRoom.Center())
+
+	player, ok := comp.PlayerTag.First(res.World)
+	if ok {
+		DestroyEntryWithBody(player)
+		arche.SpawnDefaultPlayer(res.CurrentRoom.Center().Add(cm.Vec2{0, -100}))
+	} else {
+		arche.SpawnDefaultPlayer(res.CurrentRoom.Center().Add(cm.Vec2{0, -100}))
+	}
+
+	comp.EnemyTag.Each(res.World, func(e *donburi.Entry) {
+		DestroyEntryWithBody(e)
+	})
+	comp.Collectible.Each(res.World, func(e *donburi.Entry) {
+		DestroyEntryWithBody(e)
+	})
+	comp.BombTag.Each(res.World, func(e *donburi.Entry) {
+		DestroyEntryWithBody(e)
+	})
+
+	// reset doors
+	comp.Door.Each(res.World, func(e *donburi.Entry) {
+		comp.Door.Get(e).PlayerHasKey = false
+		comp.Door.Get(e).Open = false
+	})
+
+	// top room
+	for i := 5; i < 8; i++ {
+		arche.SpawnDefaultEnemy(engine.RandomPointInBB(res.Rooms[1], 20))
+		// arche.DefaultKeyCollectible(i,  engine.RandomPointInBB(resources.Rooms[1], 20))
+	}
+	// center room
+	for i := 1; i < 5; i++ {
+		arche.SpawnDefaultEnemy(engine.RandomPointInBB(res.Rooms[0], 20))
+		arche.SpawnDefaultKeyCollectible(i, engine.RandomPointInBB(res.Rooms[0], 20))
+	}
+	// bottom room
+	for i := 8; i < 11; i++ {
+		arche.SpawnDefaultEnemy(engine.RandomPointInBB(res.Rooms[2], 20))
+		// arche.DefaultKeyCollectible(i,  engine.RandomPointInBB(resources.Rooms[2], 20))
+	}
+
 }

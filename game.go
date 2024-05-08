@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bulimia/engine"
+	"bulimia/engine/cm"
 	"bulimia/res"
 	"bulimia/system"
 
@@ -25,10 +27,16 @@ func NewGame() *Game {
 
 func (g *Game) Init() {
 
+	w, h := 800, 600
+
+	res.Screen = ebiten.NewImage(w, h)
+	res.ScreenBox = cm.NewBB(0, 0, float64(w), float64(h))
+	res.Camera = engine.NewCamera(res.ScreenBox.Center(), res.ScreenBox.R, res.ScreenBox.T)
+
 	g.systems = []System{
 		system.NewEntitySpawnSystem(),
-		system.NewPlayerControlSystem(),
 		system.NewPhysicsSystem(),
+		system.NewPlayerControlSystem(),
 		// system.NewTemplate(g.screenBox),
 		system.NewDrawCameraSystem(),
 		system.NewDrawHUDSystem(),
@@ -42,13 +50,17 @@ func (g *Game) Init() {
 }
 
 func (g *Game) Update() error {
-	for _, s := range g.systems {
-		s.Update()
+
+	if ebiten.IsFocused() {
+		for _, s := range g.systems {
+			s.Update()
+		}
 	}
 	return nil
 }
 
 func (g *Game) Draw(s *ebiten.Image) {
+
 	for _, s := range g.systems {
 		s.Draw()
 	}

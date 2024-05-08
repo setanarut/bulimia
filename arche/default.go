@@ -8,7 +8,11 @@ import (
 )
 
 func SpawnDefaultEnemy(pos cm.Vec2) {
-	SpawnEnemy(1, 0.5, 0, 20, 500, pos)
+	SpawnEnemy(1, 0.5, 0, 20, pos)
+}
+func SpawnDefaultPlayer(pos cm.Vec2) {
+	SpawnPlayer(0.1, 0.3, 0, 20, pos)
+
 }
 
 func SpawnDefaultBomb(pos cm.Vec2) {

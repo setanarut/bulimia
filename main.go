@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bulimia/engine/cm"
 	"bulimia/res"
 	"log"
 
@@ -9,9 +8,6 @@ import (
 )
 
 func main() {
-	w, h := 800, 600
-	res.Screen = ebiten.NewImage(w, h)
-	res.ScreenBox = cm.NewBB(0, 0, float64(w), float64(h))
 
 	g := NewGame()
 	g.Init()

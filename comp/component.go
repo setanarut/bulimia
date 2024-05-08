@@ -51,7 +51,6 @@ type LivingData struct {
 	Speed, Accel, Health, Damage float64
 }
 
-var Camera = donburi.NewComponentType[engine.Camera]()
 var Inventory = donburi.NewComponentType[InventoryData](InventoryData{Bombs: 100, Foods: 100, Keys: make([]int, 0)})
 var Door = donburi.NewComponentType[DoorData]()
 var Collectible = donburi.NewComponentType[CollectibleData]()
@@ -71,7 +70,7 @@ var Gradient = donburi.NewComponentType[colorgrad.Gradient](colorgrad.NewGradien
 	Build())
 
 var Body = donburi.NewComponentType[cm.Body]()
-var AI = donburi.NewComponentType[AIData](AIData{Follow: false, FollowDistance: 300})
+var AI = donburi.NewComponentType[AIData](AIData{Follow: true, FollowDistance: 300})
 var Living = donburi.NewComponentType[LivingData](LivingData{
 	Speed:  500,
 	Accel:  250,
