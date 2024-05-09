@@ -24,7 +24,7 @@ type Camera struct {
 }
 
 // NewCamera returns new Camera
-func NewCamera(target cm.Vec2, w, h float64) *Camera {
+func NewCamera(lookAt cm.Vec2, w, h float64) *Camera {
 	c := &Camera{
 		W:           w,
 		H:           h,
@@ -49,8 +49,8 @@ func NewCamera(target cm.Vec2, w, h float64) *Camera {
 		delta:        1.0 / 60.0,
 		tick:         0,
 	}
-	c.LookAt(target)
-	c.tempTarget = target
+	c.LookAt(lookAt)
+	c.tempTarget = lookAt
 	return c
 }
 
@@ -92,7 +92,8 @@ func (cam *Camera) SetSize(w, h float64) {
 
 // Center returns center point of the camera
 func (cam *Camera) Center() cm.Vec2 {
-	return cam.topLeft.Add(cam.centerOffset)
+	fmt.Println("offset", cam.centerOffset)
+	return cam.topLeft.Sub(cam.centerOffset)
 }
 
 // Reset resets all camera values to zero

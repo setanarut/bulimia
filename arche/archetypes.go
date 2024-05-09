@@ -37,7 +37,6 @@ func SpawnPlayer(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 	entry.AddComponent(comp.Inventory)
 	entry.AddComponent(comp.Living)
 	entry.AddComponent(comp.Render)
-
 	render := comp.Render.Get(entry)
 
 	render.AnimPlayer = engine.NewAnimationPlayer(res.Pacman)
