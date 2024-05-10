@@ -51,7 +51,7 @@ func (joint *PinJoint) PreStep(dt float64) {
 	if dist != 0 {
 		joint.n = delta.Mult(1 / dist)
 	} else {
-		joint.n = delta.Mult(1 / Intinity)
+		joint.n = delta.Mult(1 / Infinity)
 	}
 
 	joint.nMass = 1 / k_scalar(a, b, joint.r1, joint.r2, joint.n)

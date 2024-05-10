@@ -48,7 +48,7 @@ type RenderData struct {
 	ScaleColor color.Color
 }
 type LivingData struct {
-	Speed, Accel, Health, Damage float64
+	Speed, Accel, Health float64
 }
 
 var Inventory = donburi.NewComponentType[InventoryData](InventoryData{Bombs: 100, Foods: 100, Keys: make([]int, 0)})

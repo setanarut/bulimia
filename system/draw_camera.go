@@ -89,7 +89,7 @@ func (ds *DrawCameraSystem) DrawEntry(e *donburi.Entry) {
 	render.DIO.GeoM.Reset()
 	render.DIO.GeoM.Translate(render.Offset.X, render.Offset.Y)
 	render.DIO.GeoM.Scale(render.DrawScale.X, render.DrawScale.Y)
-	// render.DIO.GeoM.Rotate(engine.InvertAngle(body.Angle()))
+	render.DIO.GeoM.Rotate(engine.InvertAngle(body.Angle()))
 	render.DIO.GeoM.Translate(pos.X, pos.Y)
 
 	render.DIO.ColorScale.ScaleWithColor(render.ScaleColor)

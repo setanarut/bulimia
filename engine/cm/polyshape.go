@@ -42,10 +42,10 @@ func (poly *PolyShape) CacheData(transform Transform) BB {
 	dst := poly.planes[0:count]
 	src := poly.planes[count:]
 
-	l := Intinity
-	r := -Intinity
-	b := Intinity
-	t := -Intinity
+	l := Infinity
+	r := -Infinity
+	b := Infinity
+	t := -Infinity
 
 	for i := 0; i < count; i++ {
 		v := transform.Point(src[i].v0)
@@ -71,7 +71,7 @@ func (poly *PolyShape) PointQuery(p Vec2, info *PointQueryInfo) {
 	r := poly.radius
 
 	v0 := planes[count-1].v0
-	minDist := Intinity
+	minDist := Infinity
 	closestPoint := Vec2{}
 	closestNormal := Vec2{}
 	outside := false

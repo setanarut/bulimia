@@ -93,12 +93,12 @@ func (a BB) MergedArea(b BB) float64 {
 // Returns cm.INFINITY if it doesn't hit.
 func (bb BB) SegmentQuery(a, b Vec2) float64 {
 	delta := b.Sub(a)
-	tmin := -Intinity
-	tmax := Intinity
+	tmin := -Infinity
+	tmax := Infinity
 
 	if delta.X == 0 {
 		if a.X < bb.L || bb.R < a.X {
-			return Intinity
+			return Infinity
 		}
 	} else {
 		t1 := (bb.L - a.X) / delta.X
@@ -109,7 +109,7 @@ func (bb BB) SegmentQuery(a, b Vec2) float64 {
 
 	if delta.Y == 0 {
 		if a.Y < bb.B || bb.T < a.Y {
-			return Intinity
+			return Infinity
 		}
 	} else {
 		t1 := (bb.B - a.Y) / delta.Y
@@ -121,13 +121,13 @@ func (bb BB) SegmentQuery(a, b Vec2) float64 {
 	if tmin <= tmax && 0 <= tmax && tmin <= 1.0 {
 		return math.Max(tmin, 0.0)
 	} else {
-		return Intinity
+		return Infinity
 	}
 }
 
 // IntersectsSegment returns true if the bounding box intersects the line segment with ends a and b.
 func (bb BB) IntersectsSegment(a, b Vec2) bool {
-	return bb.SegmentQuery(a, b) != Intinity
+	return bb.SegmentQuery(a, b) != Infinity
 }
 
 // ClampVect clamps a vector to bounding box.

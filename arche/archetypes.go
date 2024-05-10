@@ -12,7 +12,8 @@ import (
 )
 
 func SpawnBody(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
-	body := cm.NewBody(m, cm.MomentForCircle(m, 0, r*2, cm.Vec2{}))
+	// body := cm.NewBody(m, cm.MomentForCircle(m, 0, r*2, cm.Vec2{}))
+	body := cm.NewBody(m, cm.Infinity)
 	shape := cm.NewCircle(body, r, cm.Vec2{})
 	shape.SetElasticity(e)
 	shape.SetFriction(f)
@@ -31,7 +32,6 @@ func SpawnPlayer(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 	body.SetVelocityUpdateFunc(res.PlayerVelocityFunc)
 	body.FirstShape().SetCollisionType(CollisionTypePlayer)
 	body.FirstShape().Filter = cm.NewShapeFilter(0, BitmaskPlayer, cm.AllCategories&^BitmaskFood)
-	body.SetMoment(cm.Intinity)
 
 	entry.AddComponent(comp.PlayerTag)
 	entry.AddComponent(comp.Inventory)
@@ -61,7 +61,8 @@ func SpawnPlayer(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 func SpawnEnemy(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 	entry := SpawnBody(m, e, f, r, pos)
 	body := comp.Body.Get(entry)
-	body.SetMoment(cm.Intinity)
+
+	// body.SetMoment(cm.MomentForCircle(m, 0, r*2, cm.Vec2{}))
 
 	body.FirstShape().Filter = cm.NewShapeFilter(0, BitmaskEnemy, cm.AllCategories)
 	body.FirstShape().SetCollisionType(CollisionTypeEnemy)

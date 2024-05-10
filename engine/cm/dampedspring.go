@@ -48,7 +48,7 @@ func (spring *DampedSpring) PreStep(dt float64) {
 	if dist != 0 {
 		spring.n = delta.Mult(1.0 / dist)
 	} else {
-		spring.n = delta.Mult(1.0 / Intinity)
+		spring.n = delta.Mult(1.0 / Infinity)
 	}
 
 	k := k_scalar(a, b, spring.r1, spring.r2, spring.n)

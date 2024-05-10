@@ -506,7 +506,7 @@ func (space *Space) ContactBufferGetArray() []Contact {
 }
 
 func (space *Space) ProcessComponents(dt float64) {
-	sleep := space.SleepTimeThreshold != Intinity
+	sleep := space.SleepTimeThreshold != Infinity
 
 	// calculate the kinetic energy of all the bodies
 	if sleep {
@@ -1119,7 +1119,7 @@ func SpaceCollideShapesFunc(obj interface{}, b *Shape, collisionId uint32, vspac
 		!(a.Sensor || b.Sensor) &&
 		// Don't process collisions between two infinite mass bodies.
 		// This includes collisions between two kinematic bodies, or a kinematic body and a static body.
-		!(a.body.mass == Intinity && b.body.mass == Intinity) {
+		!(a.body.mass == Infinity && b.body.mass == Infinity) {
 		space.Arbiters = append(space.Arbiters, arb)
 	} else {
 		space.PopContacts(info.count)

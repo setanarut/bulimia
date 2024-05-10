@@ -14,21 +14,20 @@ import (
 )
 
 type PlayerControlSystem struct {
-	distance, bulletRadius float64
-	bulletTimer            *engine.Timer
+	bombDistance float64
+	bulletTimer  *engine.Timer
 }
 
 func NewPlayerControlSystem() *PlayerControlSystem {
 	return &PlayerControlSystem{
-		bulletTimer:  engine.NewTimer(time.Second / 4),
-		bulletRadius: 5,
+		bulletTimer: engine.NewTimer(time.Second / 10),
 	}
 }
 
 func (sys *PlayerControlSystem) Init() {
 	if playerEntry, ok := comp.PlayerTag.First(res.World); ok {
 		body := comp.Body.Get(playerEntry)
-		sys.distance = body.FirstShape().Class.(*cm.Circle).Radius()
+		sys.bombDistance = body.FirstShape().Class.(*cm.Circle).Radius()
 
 	}
 }
@@ -105,7 +104,7 @@ func (sys *PlayerControlSystem) Update() {
 
 			// Bomba bırak
 			if inpututil.IsKeyJustPressed(ebiten.KeyShiftRight) {
-				bombPos := res.Input.LastPressedDirection.Neg().Mult(sys.distance)
+				bombPos := res.Input.LastPressedDirection.Neg().Mult(sys.bombDistance)
 				arche.SpawnDefaultBomb(playerPos.Add(bombPos))
 				inventory.Bombs -= 1
 			}
@@ -141,8 +140,10 @@ func (sys *PlayerControlSystem) shoot(pos cm.Vec2) {
 		sys.bulletTimer.Reset()
 	}
 	if sys.bulletTimer.IsStart() {
-		bullet := arche.SpawnFood(0.1, 0, 0.5, sys.bulletRadius, pos)
+		bullet := arche.SpawnDefaultFood(pos)
 		bulletBody := comp.Body.Get(bullet)
-		bulletBody.ApplyImpulseAtWorldPoint(res.Input.ArrowDirection.Mult(100), pos)
+		impulseVector := engine.Rotate(res.Input.ArrowDirection.Mult(1000),
+			engine.RandRange(0.2, -0.2))
+		bulletBody.ApplyImpulseAtWorldPoint(impulseVector, pos)
 	}
 }

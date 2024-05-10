@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	Intinity     = math.MaxFloat64
+	Infinity     = math.MaxFloat64
 	MagicEpsilon = 1e-5
 
 	RadianConst = math.Pi / 180
@@ -326,7 +326,7 @@ func DebugInfo(space *Space) string {
 
 	var ke float64
 	for _, body := range space.DynamicBodies {
-		if body.mass == Intinity || body.moi == Intinity {
+		if body.mass == Infinity || body.moi == Infinity {
 			continue
 		}
 		ke += body.mass*body.vel.Dot(body.vel) + body.moi*body.w*body.w

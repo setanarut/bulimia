@@ -162,7 +162,7 @@ func (body *Body) SetType(newType int) {
 	}
 
 	if newType == BODY_STATIC {
-		body.sleepingIdleTime = Intinity
+		body.sleepingIdleTime = Infinity
 	} else {
 		body.sleepingIdleTime = 0
 	}
@@ -170,13 +170,13 @@ func (body *Body) SetType(newType int) {
 	if newType == BODY_DYNAMIC {
 		body.mass = 0
 		body.moi = 0
-		body.m_inv = Intinity
-		body.moi_inv = Intinity
+		body.m_inv = Infinity
+		body.moi_inv = Infinity
 
 		body.AccumulateMassFromShapes()
 	} else {
-		body.mass = Intinity
-		body.moi = Intinity
+		body.mass = Infinity
+		body.moi = Infinity
 		body.m_inv = 0
 		body.moi_inv = 0
 
@@ -237,10 +237,10 @@ func (body *Body) SetType(newType int) {
 
 // GetType returns the type of the body.
 func (body *Body) GetType() int {
-	if body.sleepingIdleTime == Intinity {
+	if body.sleepingIdleTime == Infinity {
 		return BODY_STATIC
 	}
-	if body.mass == Intinity {
+	if body.mass == Infinity {
 		return BODY_KINEMATIC
 	}
 	return BODY_DYNAMIC

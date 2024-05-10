@@ -13,21 +13,21 @@ import (
 	"golang.org/x/image/colornames"
 )
 
-type PhysicsSystem struct {
+type CollisionSystem struct {
 	DT float64
 }
 
-func NewPhysicsSystem() *PhysicsSystem {
-	return &PhysicsSystem{
+func NewCollisionSystem() *CollisionSystem {
+	return &CollisionSystem{
 		DT: 1.0 / 60.0,
 	}
 }
 
-func (ps *PhysicsSystem) Init() {
+func (ps *CollisionSystem) Init() {
 	res.Space.UseSpatialHash(64, 200)
 	res.Space.CollisionBias = math.Pow(0.3, 60)
 	res.Space.CollisionSlop = 0.5
-	res.Space.Damping = 0.01
+	res.Space.Damping = 0.03
 
 	// Player
 	res.Space.NewCollisionHandler(arche.CollisionTypePlayer, arche.CollisionTypeDoor).BeginFunc = playerDoorEnter
@@ -48,7 +48,7 @@ func (ps *PhysicsSystem) Init() {
 
 }
 
-func (ps *PhysicsSystem) Update() {
+func (ps *CollisionSystem) Update() {
 
 	comp.FoodTag.Each(res.World, func(e *donburi.Entry) {
 		b := comp.Body.Get(e)
@@ -69,7 +69,8 @@ func (ps *PhysicsSystem) Update() {
 			if ai.Follow {
 				dist := playerBody.Position().Distance(ene.Position())
 				if dist < ai.FollowDistance {
-					a := playerBody.Position().Sub(ene.Position()).Normalize().Mult(livingData.Speed * 4)
+					speed := ene.Mass() * (livingData.Speed * 4)
+					a := playerBody.Position().Sub(ene.Position()).Normalize().Mult(speed)
 					ene.ApplyForceAtLocalPoint(a, ene.CenterOfGravity())
 				}
 			}
@@ -80,7 +81,7 @@ func (ps *PhysicsSystem) Update() {
 	res.Space.Step(ps.DT)
 }
 
-func (ps *PhysicsSystem) Draw() {}
+func (ps *CollisionSystem) Draw() {}
 
 // Player <-> Collectible
 func playerCollectibleCollisionBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {

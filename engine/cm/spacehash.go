@@ -277,13 +277,13 @@ func (hash *SpaceHash) SegmentQuery(obj interface{}, a, b Vec2, t_exit float64, 
 	if dx != 0 {
 		dtdx = 1.0 / dx
 	} else {
-		dtdx = Intinity
+		dtdx = Infinity
 	}
 
 	if dy != 0 {
 		dtdy = 1.0 / dy
 	} else {
-		dtdy = Intinity
+		dtdy = Infinity
 	}
 
 	var nextH, nextV float64
