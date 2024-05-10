@@ -40,82 +40,31 @@ func (sys *PlayerControlSystem) Update() {
 	res.Input.UpdateWASDDirection()
 
 	if playerEntry, ok := comp.PlayerTag.First(res.World); ok {
+
 		inventory := comp.Inventory.Get(playerEntry)
 		playerBody := comp.Body.Get(playerEntry)
 		playerRenderData := comp.Render.Get(playerEntry)
-
 		playerPos := playerBody.Position()
 
-		if res.Input.ArrowDirection.Equal(engine.RightDirection) {
-			playerRenderData.AnimPlayer.SetState("shootR")
+		if inventory.Foods > 0 {
 
-			if inventory.Foods > 0 {
+			switch res.Input.ArrowDirection {
 
-				if sys.bulletTimer.IsReady() {
-					sys.bulletTimer.Reset()
-				}
+			case engine.RightDirection:
+				playerRenderData.AnimPlayer.SetState("shootR")
+				sys.shoot(playerPos)
 
-				if sys.bulletTimer.IsStart() {
-					bullet := arche.SpawnFood(0.1, 0, 0.5, sys.bulletRadius, playerPos)
-					inventory.Foods -= 1
-					bulletBody := comp.Body.Get(bullet)
-					bulletBody.ApplyImpulseAtWorldPoint(cm.Vec2{100, 0}, playerPos)
-				}
+			case engine.LeftDirection:
+				playerRenderData.AnimPlayer.SetState("shootL")
+				sys.shoot(playerPos)
 
-			}
-		}
+			case engine.UpDirection:
+				playerRenderData.AnimPlayer.SetState("shootU")
+				sys.shoot(playerPos)
 
-		if res.Input.ArrowDirection.Equal(engine.LeftDirection) {
-			playerRenderData.AnimPlayer.SetState("shootL")
-
-			if inventory.Foods > 0 {
-
-				if sys.bulletTimer.IsReady() {
-					sys.bulletTimer.Reset()
-				}
-
-				if sys.bulletTimer.IsStart() {
-
-					bullet := arche.SpawnFood(0.1, 0, 0.5, sys.bulletRadius, playerPos)
-					inventory.Foods -= 1
-					bulletBody := comp.Body.Get(bullet)
-					bulletBody.ApplyImpulseAtWorldPoint(cm.Vec2{-100, 0}, playerPos)
-				}
-			}
-		}
-
-		if res.Input.ArrowDirection.Equal(engine.UpDirection) {
-			playerRenderData.AnimPlayer.SetState("shootU")
-
-			if inventory.Foods > 0 {
-				if sys.bulletTimer.IsReady() {
-					sys.bulletTimer.Reset()
-				}
-				if sys.bulletTimer.IsStart() {
-					bullet := arche.SpawnFood(0.1, 0, 0.5, sys.bulletRadius, playerPos)
-					inventory.Foods -= 1
-					bulletBody := comp.Body.Get(bullet)
-					bulletBody.ApplyImpulseAtWorldPoint(cm.Vec2{0, 100}, playerPos)
-				}
-
-			}
-
-		}
-
-		if res.Input.ArrowDirection == engine.DownDirection {
-			playerRenderData.AnimPlayer.SetState("shootD")
-
-			if inventory.Foods > 0 {
-
-				if sys.bulletTimer.IsReady() {
-					sys.bulletTimer.Reset()
-				}
-				if sys.bulletTimer.IsStart() {
-					bullet := arche.SpawnFood(0.1, 0, 0.5, sys.bulletRadius, playerPos)
-					inventory.Foods -= 1
-					bulletBody := comp.Body.Get(bullet)
-					bulletBody.ApplyImpulseAtWorldPoint(cm.Vec2{0, -100}, playerPos)
-				}
+			case engine.DownDirection:
+				playerRenderData.AnimPlayer.SetState("shootD")
+				sys.shoot(playerPos)
 
 			}
 		}
@@ -150,7 +99,6 @@ func (sys *PlayerControlSystem) Update() {
 				playerRenderData.AnimPlayer.SetState("down")
 
 			}
-
 		}
 
 		if inventory.Bombs > 0 {
@@ -186,4 +134,15 @@ func (sys *PlayerControlSystem) Update() {
 }
 
 func (sys *PlayerControlSystem) Draw() {
+}
+
+func (sys *PlayerControlSystem) shoot(pos cm.Vec2) {
+	if sys.bulletTimer.IsReady() {
+		sys.bulletTimer.Reset()
+	}
+	if sys.bulletTimer.IsStart() {
+		bullet := arche.SpawnFood(0.1, 0, 0.5, sys.bulletRadius, pos)
+		bulletBody := comp.Body.Get(bullet)
+		bulletBody.ApplyImpulseAtWorldPoint(res.Input.ArrowDirection.Mult(100), pos)
+	}
 }
