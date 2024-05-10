@@ -170,6 +170,7 @@ func enemyPlayerPostSolve(arb *cm.Arbiter, space *cm.Space, userData interface{}
 				livingData = comp.Living.Get(playerEntry)
 				comp.Render.Get(playerEntry).ScaleColor = colornames.Red
 				livingData.Health -= *comp.Damage.Get(enemyEntry)
+				// livingData.Health -= donburi.GetValue[float64](enemyEntry, comp.Damage)
 				if livingData.Health < 0 {
 					DestroyBodyWithEntry(playerBody)
 				}
