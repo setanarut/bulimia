@@ -20,7 +20,7 @@ type PlayerControlSystem struct {
 
 func NewPlayerControlSystem() *PlayerControlSystem {
 	return &PlayerControlSystem{
-		bulletTimer: engine.NewTimer(time.Second / 10),
+		bulletTimer: engine.NewTimer(time.Second / 4),
 	}
 }
 
@@ -41,6 +41,7 @@ func (sys *PlayerControlSystem) Update() {
 	if playerEntry, ok := comp.PlayerTag.First(res.World); ok {
 
 		inventory := comp.Inventory.Get(playerEntry)
+		emetic := comp.Living.Get(playerEntry).Emetic
 		playerBody := comp.Body.Get(playerEntry)
 		playerRenderData := comp.Render.Get(playerEntry)
 		playerPos := playerBody.Position()
@@ -51,19 +52,16 @@ func (sys *PlayerControlSystem) Update() {
 
 			case engine.RightDirection:
 				playerRenderData.AnimPlayer.SetState("shootR")
-				sys.shoot(playerPos)
-
+				sys.shoot(playerPos, emetic)
 			case engine.LeftDirection:
 				playerRenderData.AnimPlayer.SetState("shootL")
-				sys.shoot(playerPos)
-
+				sys.shoot(playerPos, emetic)
 			case engine.UpDirection:
 				playerRenderData.AnimPlayer.SetState("shootU")
-				sys.shoot(playerPos)
-
+				sys.shoot(playerPos, emetic)
 			case engine.DownDirection:
 				playerRenderData.AnimPlayer.SetState("shootD")
-				sys.shoot(playerPos)
+				sys.shoot(playerPos, emetic)
 
 			}
 		}
@@ -128,6 +126,20 @@ func (sys *PlayerControlSystem) Update() {
 		})
 
 	}
+	// disable Emetic
+	if inpututil.IsKeyJustPressed(ebiten.Key0) {
+		player, ok := comp.PlayerTag.First(res.World)
+		if ok {
+			comp.Living.Get(player).Emetic = !comp.Living.Get(player).Emetic
+			if comp.Living.Get(player).Emetic {
+				sys.bulletTimer.SetDuration(time.Second / 30)
+			} else {
+				sys.bulletTimer.SetDuration(time.Second / 4)
+			}
+
+		}
+
+	}
 
 	sys.bulletTimer.Update()
 }
@@ -135,15 +147,32 @@ func (sys *PlayerControlSystem) Update() {
 func (sys *PlayerControlSystem) Draw() {
 }
 
-func (sys *PlayerControlSystem) shoot(pos cm.Vec2) {
+func (sys *PlayerControlSystem) shoot(pos cm.Vec2, emetic bool) {
+
 	if sys.bulletTimer.IsReady() {
 		sys.bulletTimer.Reset()
 	}
+
 	if sys.bulletTimer.IsStart() {
-		bullet := arche.SpawnDefaultFood(pos)
-		bulletBody := comp.Body.Get(bullet)
-		impulseVector := engine.Rotate(res.Input.ArrowDirection.Mult(1000),
-			engine.RandRange(0.2, -0.2))
-		bulletBody.ApplyImpulseAtWorldPoint(impulseVector, pos)
+		var dir cm.Vec2
+
+		if emetic {
+			sys.bulletTimer.SetDuration(time.Second / 30)
+			for range 10 {
+				dir = engine.Rotate(res.Input.ArrowDirection.Mult(1000), engine.RandRange(0.2, -0.2))
+				bullet := arche.SpawnDefaultFood(pos)
+				bulletBody := comp.Body.Get(bullet)
+				bulletBody.ApplyImpulseAtWorldPoint(dir, pos)
+			}
+		} else {
+			for range 1 {
+				dir = engine.Rotate(res.Input.ArrowDirection.Mult(1000), engine.RandRange(0.1, -0.1))
+				bullet := arche.SpawnDefaultFood(pos)
+				bulletBody := comp.Body.Get(bullet)
+				bulletBody.ApplyImpulseAtWorldPoint(dir, pos)
+			}
+		}
+
 	}
+
 }

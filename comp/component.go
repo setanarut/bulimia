@@ -16,12 +16,14 @@ const (
 	Food ItemType = iota
 	Bomb
 	Key
+	EmeticDrug
 )
 
 type InventoryData struct {
-	Foods int
-	Bombs int
-	Keys  []int
+	Foods      int
+	Bombs      int
+	EmeticDrug int
+	Keys       []int
 }
 
 type CollectibleData struct {
@@ -49,6 +51,7 @@ type RenderData struct {
 }
 type LivingData struct {
 	Speed, Accel, Health float64
+	Emetic               bool
 }
 
 var Inventory = donburi.NewComponentType[InventoryData](InventoryData{Bombs: 100, Foods: 100, Keys: make([]int, 0)})
@@ -73,7 +76,7 @@ var Body = donburi.NewComponentType[cm.Body]()
 var AI = donburi.NewComponentType[AIData](AIData{Follow: true, FollowDistance: 300})
 var Living = donburi.NewComponentType[LivingData](LivingData{
 	Speed:  500,
-	Accel:  250,
+	Accel:  100,
 	Health: 100.,
 })
 

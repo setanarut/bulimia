@@ -10,8 +10,8 @@ Play demo: https://setanarut.github.io/bulimia/
 
 - [ ] Random enemy archetypes
 - [ ] One-way door system.
-- [ ] Vomiting large amounts of food
-- [ ] Emetic drug collectible for big vomit
+- [x] Vomiting large amounts of food
+- [x] Emetic drug collectible for big vomit
 - [ ] Add defense behavior to player
 - [ ] Add target entity to pass the level.
 - [ ] Better enemy follow AI

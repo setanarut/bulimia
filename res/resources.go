@@ -59,3 +59,16 @@ func PlayerVelocityFunc(body *cm.Body, gravity cm.Vec2, damping float64, dt floa
 		}
 	}
 }
+
+// func ItemVelocityFunc(body *cm.Body, gravity cm.Vec2, damping float64, dt float64) {
+
+// 	entry, ok := body.UserData.(*donburi.Entry)
+
+// 	if ok {
+// 		if entry.Valid() {
+
+// 			WASDAxisVector := Input.WASDDirection.Normalize().Mult(livingData.Speed)
+// 			body.SetVelocityVector(body.Velocity().LerpDistance(WASDAxisVector, livingData.Accel))
+// 		}
+// 	}
+// }

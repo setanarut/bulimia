@@ -37,30 +37,22 @@ func (sys *EntitySpawnSystem) Init() {
 	arche.SpawnRoom(res.Rooms[3], arche.RoomOptions{true, true, true, false, 11, 12, 13, -1})
 	arche.SpawnRoom(res.Rooms[4], arche.RoomOptions{true, true, false, true, 14, 15, -1, 16})
 
-	arche.SpawnDefaultPlayer(res.CurrentRoom.Center().Add(cm.Vec2{0, -100}))
-	arche.SpawnWall(res.CurrentRoom.Center(), 100, 100)
-
-	// top room
-	for i := 5; i < 8; i++ {
-		arche.SpawnDefaultEnemy(engine.RandomPointInBB(res.Rooms[1], 20))
-		// arche.DefaultKeyCollectible(i,  engine.RandomPointInBB(resources.Rooms[1], 20))
-	}
-	// center room
-	for i := 1; i < 5; i++ {
-		arche.SpawnDefaultEnemy(engine.RandomPointInBB(res.Rooms[0], 20))
-		arche.SpawnDefaultKeyCollectible(i, engine.RandomPointInBB(res.Rooms[0], 20))
-	}
-	// bottom room
-	for i := 8; i < 11; i++ {
-		arche.SpawnDefaultEnemy(engine.RandomPointInBB(res.Rooms[2], 20))
-		// arche.DefaultKeyCollectible(i,  engine.RandomPointInBB(resources.Rooms[2], 20))
-	}
+	ResetLevel()
 
 	res.World.OnRemove(func(world donburi.World, entity donburi.Entity) {
 		e := world.Entry(entity)
 		if e.HasComponent(comp.EnemyTag) {
 			p := comp.Body.Get(e).Position()
-			arche.SpawnCollectible(comp.Food, 10, -1, 10, p)
+			i := comp.Inventory.Get(e)
+			for _, v := range i.Keys {
+				arche.SpawnDefaultKeyCollectible(v, p)
+			}
+			for range i.Bombs {
+				arche.SpawnDefaultBomb(p)
+			}
+			for range i.Foods {
+				arche.SpawnDefaultFood(p)
+			}
 		}
 
 	})
@@ -81,7 +73,7 @@ func (sys *EntitySpawnSystem) Update() {
 		arche.SpawnDefaultBomb(cursor)
 	}
 	if inpututil.IsKeyJustPressed(ebiten.Key2) {
-		arche.SpawnDefaultEnemy(cursor)
+		arche.SpawnDefaultEmeticCollectible(cursor)
 	}
 	if inpututil.IsKeyJustPressed(ebiten.Key3) {
 		arche.SpawnRandomCollectible(cursor)
@@ -149,9 +141,13 @@ func ResetLevel() {
 		// arche.DefaultKeyCollectible(i,  engine.RandomPointInBB(resources.Rooms[1], 20))
 	}
 	// center room
+	arche.SpawnDefaultEmeticCollectible(engine.RandomPointInBB(res.Rooms[0], 20))
 	for i := 1; i < 5; i++ {
-		arche.SpawnDefaultEnemy(engine.RandomPointInBB(res.Rooms[0], 20))
-		arche.SpawnDefaultKeyCollectible(i, engine.RandomPointInBB(res.Rooms[0], 20))
+		e := arche.SpawnDefaultEnemy(engine.RandomPointInBB(res.Rooms[0], 20))
+		inv := comp.Inventory.Get(e)
+		inv.Keys = append(inv.Keys, i)
+
+		// arche.SpawnDefaultKeyCollectible(i, engine.RandomPointInBB(res.Rooms[0], 20))
 	}
 	// bottom room
 	for i := 8; i < 11; i++ {

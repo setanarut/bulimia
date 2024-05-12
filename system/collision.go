@@ -58,10 +58,10 @@ func (ps *CollisionSystem) Update() {
 	})
 
 	if pla, ok := comp.PlayerTag.First(res.World); ok {
+		playerBody := comp.Body.Get(pla)
 
 		comp.EnemyTag.Each(res.World, func(e *donburi.Entry) {
 
-			playerBody := comp.Body.Get(pla)
 			ene := comp.Body.Get(e)
 			ai := *comp.AI.Get(e)
 			livingData := comp.Living.Get(e)
@@ -73,6 +73,18 @@ func (ps *CollisionSystem) Update() {
 					a := playerBody.Position().Sub(ene.Position()).Normalize().Mult(speed)
 					ene.ApplyForceAtLocalPoint(a, ene.CenterOfGravity())
 				}
+			}
+
+		})
+		comp.Collectible.Each(res.World, func(e *donburi.Entry) {
+
+			ene := comp.Body.Get(e)
+			dist := playerBody.Position().Distance(ene.Position())
+
+			if dist < 80 {
+				speed := engine.MapRange(dist, 500, 0, 0, 1000)
+				a := playerBody.Position().Sub(ene.Position()).Normalize().Mult(speed)
+				ene.ApplyForceAtLocalPoint(a, ene.CenterOfGravity())
 			}
 
 		})
@@ -91,7 +103,10 @@ func playerCollectibleCollisionBegin(arb *cm.Arbiter, space *cm.Space, userData 
 
 	if pok && cok {
 
-		if playerEntry.Valid() && collectibleEntry.Valid() && collectibleEntry.HasComponent(comp.Collectible) && playerEntry.HasComponent(comp.Inventory) {
+		if playerEntry.Valid() &&
+			collectibleEntry.Valid() &&
+			collectibleEntry.HasComponent(comp.Collectible) &&
+			playerEntry.HasComponent(comp.Inventory) {
 
 			inventory := comp.Inventory.Get(playerEntry)
 			collectibleComponent := comp.Collectible.Get(collectibleEntry)
@@ -101,6 +116,9 @@ func playerCollectibleCollisionBegin(arb *cm.Arbiter, space *cm.Space, userData 
 			}
 			if collectibleComponent.Type == comp.Bomb {
 				inventory.Bombs += collectibleComponent.ItemCount
+			}
+			if collectibleComponent.Type == comp.EmeticDrug {
+				comp.Living.Get(playerEntry).Emetic = true
 			}
 
 			if collectibleComponent.Type == comp.Key {

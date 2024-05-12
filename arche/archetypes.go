@@ -73,8 +73,9 @@ func SpawnEnemy(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 	entry.AddComponent(comp.Render)
 	entry.AddComponent(comp.Gradient)
 	entry.AddComponent(comp.Damage)
-
-	comp.Damage.SetValue(entry, 0.2)
+	entry.AddComponent(comp.Inventory)
+	comp.Inventory.Set(entry, &comp.InventoryData{Bombs: 0, Foods: 0, Keys: make([]int, 0)})
+	comp.Damage.SetValue(entry, 0.1)
 
 	render := comp.Render.Get(entry)
 	liv := comp.Living.Get(entry)
@@ -200,7 +201,7 @@ func SpawnCollectible(itemType comp.ItemType, count, keyNumber int,
 	entry := SpawnBody(1, 0, 1, r, pos)
 	body := comp.Body.Get(entry)
 	// body.FirstShape().Filter = cm.NewShapeFilter(0, BitmaskCollectible, BitmaskPlayer|BitmaskWall|BitmaskCollectible)
-	body.FirstShape().Filter = cm.NewShapeFilter(0, BitmaskCollectible, cm.AllCategories)
+	body.FirstShape().Filter = cm.NewShapeFilter(0, BitmaskCollectible, cm.AllCategories&^BitmaskFood)
 	body.FirstShape().SetCollisionType(CollisionTypeCollectible)
 
 	entry.AddComponent(comp.Collectible)
@@ -224,6 +225,9 @@ func SpawnCollectible(itemType comp.ItemType, count, keyNumber int,
 	case comp.Food:
 		ap = engine.NewAnimationPlayer(res.Items)
 		ap.AddStateAnimation("idle", 200, 0, 100, 100, 1, false)
+	case comp.EmeticDrug:
+		ap = engine.NewAnimationPlayer(res.Items)
+		ap.AddStateAnimation("idle", 300, 0, 100, 100, 1, false)
 	default:
 		ap = engine.NewAnimationPlayer(res.Items)
 		ap.AddStateAnimation("idle", 200, 0, 100, 100, 1, false)
@@ -236,7 +240,7 @@ func SpawnCollectible(itemType comp.ItemType, count, keyNumber int,
 	render.AnimPlayer.Paused = true
 	render.DrawScale = engine.GetCircleScaleFactor(r, render.AnimPlayer.CurrentFrame)
 	render.Offset = engine.GetEbitenImageOffset(render.AnimPlayer.CurrentFrame)
-	render.ScaleColor = colornames.Cyan
+	render.ScaleColor = colornames.Yellow
 
 	return entry
 }
