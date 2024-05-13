@@ -118,7 +118,8 @@ func playerCollectibleCollisionBegin(arb *cm.Arbiter, space *cm.Space, userData 
 				inventory.Bombs += collectibleComponent.ItemCount
 			}
 			if collectibleComponent.Type == comp.EmeticDrug {
-				comp.Living.Get(playerEntry).Emetic = true
+				inventory.EmeticDrug += collectibleComponent.ItemCount
+
 			}
 
 			if collectibleComponent.Type == comp.Key {

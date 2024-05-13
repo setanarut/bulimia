@@ -4,6 +4,7 @@ import (
 	"bulimia/engine"
 	"bulimia/engine/cm"
 	"image/color"
+	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/mazznoer/colorgrad"
@@ -50,8 +51,9 @@ type RenderData struct {
 	ScaleColor color.Color
 }
 type LivingData struct {
-	Speed, Accel, Health float64
-	Emetic               bool
+	Speed, Accel, Health  float64
+	ShootingCooldownTimer *engine.Timer
+	BulletPerCoolDown     int
 }
 
 var Inventory = donburi.NewComponentType[InventoryData](InventoryData{Bombs: 100, Foods: 100, Keys: make([]int, 0)})
@@ -74,10 +76,13 @@ var Gradient = donburi.NewComponentType[colorgrad.Gradient](colorgrad.NewGradien
 
 var Body = donburi.NewComponentType[cm.Body]()
 var AI = donburi.NewComponentType[AIData](AIData{Follow: true, FollowDistance: 300})
+
 var Living = donburi.NewComponentType[LivingData](LivingData{
-	Speed:  500,
-	Accel:  100,
-	Health: 100.,
+	Speed:                 500,
+	Accel:                 100,
+	Health:                100.,
+	ShootingCooldownTimer: engine.NewTimer(time.Second / 4),
+	BulletPerCoolDown:     1,
 })
 
 var Damage = donburi.NewComponentType[float64](20.0)

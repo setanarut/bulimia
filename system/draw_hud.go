@@ -47,7 +47,7 @@ func (hs *DrawHUDSystem) Draw() {
 
 	if ebiten.IsFocused() {
 		// inventory
-		if true {
+		if false {
 			p, ok := comp.PlayerTag.First(res.World)
 			if ok {
 				playerInventory := *comp.Inventory.Get(p)
@@ -78,7 +78,7 @@ func (hs *DrawHUDSystem) Draw() {
 	}
 
 	// FPS/TPS Debug text
-	if false {
+	if true {
 		text.Draw(
 			res.Screen,
 			fmt.Sprintf(
@@ -87,7 +87,8 @@ func (hs *DrawHUDSystem) Draw() {
 				len(res.Space.StaticBodies),
 				res.World.Len(),
 				ebiten.ActualTPS(),
-				ebiten.ActualFPS(),
+				// ebiten.ActualFPS(),
+				res.Input.ArrowDirection,
 			),
 			res.Iosevka,
 			hs.statsTextOptions)

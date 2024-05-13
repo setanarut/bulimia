@@ -42,9 +42,6 @@ func SpawnPlayer(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 	render.AnimPlayer = engine.NewAnimationPlayer(res.Pacman)
 	w := 100
 	render.AnimPlayer.AddStateAnimation("shootR", 0, 0, w, w, 1, false)
-	render.AnimPlayer.AddStateAnimation("shootL", 0, w, w, w, 1, false)
-	render.AnimPlayer.AddStateAnimation("shootU", 0, w*2, w, w, 1, false)
-	render.AnimPlayer.AddStateAnimation("shootD", 0, w*3, w, w, 1, false)
 
 	render.AnimPlayer.AddStateAnimation("right", 0, 0, w, w, 4, true)
 	render.AnimPlayer.AddStateAnimation("left", 0, w, w, w, 4, true)

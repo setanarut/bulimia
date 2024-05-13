@@ -4,32 +4,24 @@ import (
 	"bulimia/arche"
 	"bulimia/comp"
 	"bulimia/engine"
-	"bulimia/engine/cm"
 	"bulimia/res"
-	"time"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/yohamta/donburi"
 )
 
+var BombDistance float64 = 40
+
 type PlayerControlSystem struct {
-	bombDistance float64
-	bulletTimer  *engine.Timer
 }
 
 func NewPlayerControlSystem() *PlayerControlSystem {
-	return &PlayerControlSystem{
-		bulletTimer: engine.NewTimer(time.Second / 4),
-	}
+	return &PlayerControlSystem{}
 }
 
 func (sys *PlayerControlSystem) Init() {
-	if playerEntry, ok := comp.PlayerTag.First(res.World); ok {
-		body := comp.Body.Get(playerEntry)
-		sys.bombDistance = body.FirstShape().Class.(*cm.Circle).Radius()
 
-	}
 }
 
 func (sys *PlayerControlSystem) Update() {
@@ -40,31 +32,42 @@ func (sys *PlayerControlSystem) Update() {
 
 	if playerEntry, ok := comp.PlayerTag.First(res.World); ok {
 
+		livingData := comp.Living.Get(playerEntry)
+
 		inventory := comp.Inventory.Get(playerEntry)
-		emetic := comp.Living.Get(playerEntry).Emetic
 		playerBody := comp.Body.Get(playerEntry)
 		playerRenderData := comp.Render.Get(playerEntry)
 		playerPos := playerBody.Position()
 
 		if inventory.Foods > 0 {
 
-			switch res.Input.ArrowDirection {
+			if !res.Input.ArrowDirection.Equal(engine.NoDirection) {
 
-			case engine.RightDirection:
 				playerRenderData.AnimPlayer.SetState("shootR")
-				sys.shoot(playerPos, emetic)
-			case engine.LeftDirection:
-				playerRenderData.AnimPlayer.SetState("shootL")
-				sys.shoot(playerPos, emetic)
-			case engine.UpDirection:
-				playerRenderData.AnimPlayer.SetState("shootU")
-				sys.shoot(playerPos, emetic)
-			case engine.DownDirection:
-				playerRenderData.AnimPlayer.SetState("shootD")
-				sys.shoot(playerPos, emetic)
+				playerBody.SetAngle(res.Input.ArrowDirection.ToAngle())
+
+				if livingData.ShootingCooldownTimer.IsReady() {
+					livingData.ShootingCooldownTimer.Reset()
+				}
+
+				if livingData.ShootingCooldownTimer.IsStart() {
+					for range livingData.BulletPerCoolDown {
+						dir := engine.Rotate(res.Input.ArrowDirection.Mult(1000), engine.RandRange(0.2, -0.2))
+						bullet := arche.SpawnDefaultFood(playerPos)
+						bulletBody := comp.Body.Get(bullet)
+						bulletBody.ApplyImpulseAtWorldPoint(dir, playerPos)
+					}
+
+				}
+
+			} else {
+				playerBody.SetAngle(0)
 
 			}
+
 		}
+
+		livingData.ShootingCooldownTimer.Update()
 
 		if inpututil.IsKeyJustReleased(ebiten.KeyArrowUp) {
 			playerRenderData.AnimPlayer.SetState("up")
@@ -102,7 +105,7 @@ func (sys *PlayerControlSystem) Update() {
 
 			// Bomba bırak
 			if inpututil.IsKeyJustPressed(ebiten.KeyShiftRight) {
-				bombPos := res.Input.LastPressedDirection.Neg().Mult(sys.bombDistance)
+				bombPos := res.Input.LastPressedDirection.Neg().Mult(BombDistance)
 				arche.SpawnDefaultBomb(playerPos.Add(bombPos))
 				inventory.Bombs -= 1
 			}
@@ -126,53 +129,8 @@ func (sys *PlayerControlSystem) Update() {
 		})
 
 	}
-	// disable Emetic
-	if inpututil.IsKeyJustPressed(ebiten.Key0) {
-		player, ok := comp.PlayerTag.First(res.World)
-		if ok {
-			comp.Living.Get(player).Emetic = !comp.Living.Get(player).Emetic
-			if comp.Living.Get(player).Emetic {
-				sys.bulletTimer.SetDuration(time.Second / 30)
-			} else {
-				sys.bulletTimer.SetDuration(time.Second / 4)
-			}
 
-		}
-
-	}
-
-	sys.bulletTimer.Update()
 }
 
 func (sys *PlayerControlSystem) Draw() {
-}
-
-func (sys *PlayerControlSystem) shoot(pos cm.Vec2, emetic bool) {
-
-	if sys.bulletTimer.IsReady() {
-		sys.bulletTimer.Reset()
-	}
-
-	if sys.bulletTimer.IsStart() {
-		var dir cm.Vec2
-
-		if emetic {
-			sys.bulletTimer.SetDuration(time.Second / 30)
-			for range 10 {
-				dir = engine.Rotate(res.Input.ArrowDirection.Mult(1000), engine.RandRange(0.2, -0.2))
-				bullet := arche.SpawnDefaultFood(pos)
-				bulletBody := comp.Body.Get(bullet)
-				bulletBody.ApplyImpulseAtWorldPoint(dir, pos)
-			}
-		} else {
-			for range 1 {
-				dir = engine.Rotate(res.Input.ArrowDirection.Mult(1000), engine.RandRange(0.1, -0.1))
-				bullet := arche.SpawnDefaultFood(pos)
-				bulletBody := comp.Body.Get(bullet)
-				bulletBody.ApplyImpulseAtWorldPoint(dir, pos)
-			}
-		}
-
-	}
-
 }
