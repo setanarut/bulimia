@@ -55,9 +55,16 @@ type LivingData struct {
 	ShootingCooldownTimer *engine.Timer
 	BulletPerCoolDown     int
 }
+type DrugEffectData struct {
+	Speed, Accel, Health float64
+	ShootingCooldown     time.Duration
+	BulletPerCoolDown    int
+	EffectTimer          *engine.Timer
+}
 
 var Inventory = donburi.NewComponentType[InventoryData](InventoryData{Bombs: 100, Foods: 100, Keys: make([]int, 0)})
 var Door = donburi.NewComponentType[DoorData]()
+var DrugEffect = donburi.NewComponentType[DrugEffectData]()
 var Collectible = donburi.NewComponentType[CollectibleData]()
 
 var Render = donburi.NewComponentType[RenderData](RenderData{

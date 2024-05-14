@@ -21,7 +21,6 @@ func NewEntitySpawnSystem() *EntitySpawnSystem {
 }
 
 func (sys *EntitySpawnSystem) Init() {
-
 	res.CurrentRoom = res.ScreenBox
 
 	res.Rooms = make([]cm.BB, 0)

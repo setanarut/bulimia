@@ -8,11 +8,12 @@ Play demo: https://setanarut.github.io/bulimia/
 
 ## To do
 
-- [ ] Random enemy archetypes
+- [ ] DrugEffect component
+- [ ] Add target entity to pass the level.
 - [ ] One-way door system.
+- [ ] Better enemy follow AI
+- [ ] Random enemy archetypes
 - [x] Vomiting large amounts of food
 - [x] Emetic drug collectible for big vomit
 - [ ] Add defense behavior to player
-- [ ] Add target entity to pass the level.
-- [ ] Better enemy follow AI
 - [ ] Post-effects animations (explosion, death)

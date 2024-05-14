@@ -119,7 +119,7 @@ func LoadTextFace(fileName string, size float64, assets embed.FS) *text.GoTextFa
 	gtf := &text.GoTextFace{
 		Source:   src,
 		Size:     size,
-		Language: language.Turkish,
+		Language: language.English,
 	}
 
 	return gtf

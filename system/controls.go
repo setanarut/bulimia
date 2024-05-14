@@ -33,7 +33,6 @@ func (sys *PlayerControlSystem) Update() {
 	if playerEntry, ok := comp.PlayerTag.First(res.World); ok {
 
 		livingData := comp.Living.Get(playerEntry)
-
 		inventory := comp.Inventory.Get(playerEntry)
 		playerBody := comp.Body.Get(playerEntry)
 		playerRenderData := comp.Render.Get(playerEntry)
@@ -108,6 +107,15 @@ func (sys *PlayerControlSystem) Update() {
 				bombPos := res.Input.LastPressedDirection.Neg().Mult(BombDistance)
 				arche.SpawnDefaultBomb(playerPos.Add(bombPos))
 				inventory.Bombs -= 1
+			}
+
+		}
+		if inventory.EmeticDrug > 0 {
+
+			// ilac kullan
+			if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
+				// İlaç etki süresi buraya gelecek
+				inventory.EmeticDrug -= 1
 			}
 
 		}

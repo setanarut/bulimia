@@ -30,15 +30,15 @@ var (
 )
 
 var (
-	Wall       = ebiten.NewImage(30, 30)
-	Pacman     = engine.LoadImage("assets/pac.png", assets)
-	Items      = engine.LoadImage("assets/items.png", assets)
-	Enemy      = engine.LoadImage("assets/enemy.png", assets)
-	Iosevka    = engine.LoadTextFace("assets/iosevka.ttf", 20, assets)
-	IosevkaBig = &text.GoTextFace{
-		Source:   Iosevka.Source,
+	Wall      = ebiten.NewImage(30, 30)
+	Pacman    = engine.LoadImage("assets/pac.png", assets)
+	Items     = engine.LoadImage("assets/items.png", assets)
+	Enemy     = engine.LoadImage("assets/enemy.png", assets)
+	Futura    = engine.LoadTextFace("assets/futura.ttf", 20, assets)
+	FuturaBig = &text.GoTextFace{
+		Source:   Futura.Source,
 		Size:     35,
-		Language: language.Turkish,
+		Language: language.English,
 	}
 )
 
