@@ -8,7 +8,7 @@ Play demo: https://setanarut.github.io/bulimia/
 
 ## To do
 
-- [ ] DrugEffect component
+- [x] DrugEffect component
 - [ ] Add target entity to pass the level.
 - [ ] One-way door system.
 - [ ] Better enemy follow AI
