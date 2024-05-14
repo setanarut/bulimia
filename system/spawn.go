@@ -136,13 +136,16 @@ func ResetLevel() {
 
 	// top room
 	for i := 5; i < 8; i++ {
-		arche.SpawnDefaultEnemy(engine.RandomPointInBB(res.Rooms[1], 20))
+		e := arche.SpawnDefaultEnemy(engine.RandomPointInBB(res.Rooms[1], 20))
+		comp.AI.Get(e).Follow = false
 		// arche.DefaultKeyCollectible(i,  engine.RandomPointInBB(resources.Rooms[1], 20))
 	}
 	// center room
 	arche.SpawnDefaultEmeticCollectible(engine.RandomPointInBB(res.Rooms[0], 20))
+
 	for i := 1; i < 5; i++ {
 		e := arche.SpawnDefaultEnemy(engine.RandomPointInBB(res.Rooms[0], 20))
+		comp.AI.Get(e).Follow = false
 		inv := comp.Inventory.Get(e)
 		inv.Keys = append(inv.Keys, i)
 
@@ -150,7 +153,8 @@ func ResetLevel() {
 	}
 	// bottom room
 	for i := 8; i < 11; i++ {
-		arche.SpawnDefaultEnemy(engine.RandomPointInBB(res.Rooms[2], 20))
+		e := arche.SpawnDefaultEnemy(engine.RandomPointInBB(res.Rooms[2], 20))
+		comp.AI.Get(e).Follow = false
 		// arche.DefaultKeyCollectible(i,  engine.RandomPointInBB(resources.Rooms[2], 20))
 	}
 

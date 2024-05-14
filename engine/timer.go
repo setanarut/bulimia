@@ -10,8 +10,8 @@ type Timer struct {
 	TargetFrames  int
 }
 
-func NewTimer(duration time.Duration) *Timer {
-	return &Timer{
+func NewTimer(duration time.Duration) Timer {
+	return Timer{
 		duration:      duration,
 		CurrentFrames: 0,
 		TargetFrames:  int(duration.Milliseconds()) * 60 / 1000,

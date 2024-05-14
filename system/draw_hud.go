@@ -50,7 +50,14 @@ func (hs *DrawHUDSystem) Draw() {
 		if true {
 			p, ok := comp.PlayerTag.First(res.World)
 			if ok {
-				playerInventory := *comp.Inventory.Get(p)
+				playerInventory := comp.Inventory.Get(p)
+
+				if p.HasComponent(comp.DrugEffect) {
+					effectPercent := comp.DrugEffect.Get(p).EffectTimer.PercentDone()
+					hs.statsTextOptions.GeoM.Translate(200, 10)
+					text.Draw(res.Screen, fmt.Sprintf("Emetic Effect %.2f", effectPercent), res.FuturaBig, hs.statsTextOptions)
+					hs.statsTextOptions.GeoM.Translate(-200, -10)
+				}
 
 				liv := *comp.Living.Get(p)
 				text.Draw(

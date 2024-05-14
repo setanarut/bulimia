@@ -12,6 +12,7 @@ import (
 )
 
 var BombDistance float64 = 40
+var HoldLivingData comp.LivingData
 
 type PlayerControlSystem struct {
 }
@@ -37,6 +38,29 @@ func (sys *PlayerControlSystem) Update() {
 		playerBody := comp.Body.Get(playerEntry)
 		playerRenderData := comp.Render.Get(playerEntry)
 		playerPos := playerBody.Position()
+
+		if playerEntry.HasComponent(comp.DrugEffect) {
+
+			de := comp.DrugEffect.Get(playerEntry)
+
+			if de.EffectTimer.IsStart() {
+
+				HoldLivingData = *livingData
+				livingData.BulletPerCoolDown += de.ExtraBulletPerCoolDown
+				livingData.ShootingCooldownTimer.SetDuration(de.ShootingCooldown)
+				livingData.Speed *= de.SpeedScaleFactor
+
+			}
+
+			if de.EffectTimer.IsReady() {
+				livingData.BulletPerCoolDown -= de.ExtraBulletPerCoolDown
+				livingData.ShootingCooldownTimer.SetDuration(HoldLivingData.ShootingCooldownTimer.Duration())
+				livingData.Speed = HoldLivingData.Speed
+				playerEntry.RemoveComponent(comp.DrugEffect)
+			}
+
+			de.EffectTimer.Update()
+		}
 
 		if inventory.Foods > 0 {
 
@@ -110,14 +134,17 @@ func (sys *PlayerControlSystem) Update() {
 			}
 
 		}
-		if inventory.EmeticDrug > 0 {
 
-			// ilac kullan
-			if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
-				// İlaç etki süresi buraya gelecek
-				inventory.EmeticDrug -= 1
+		// ilac kullan
+		if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
+
+			if inventory.EmeticDrug > 0 {
+				if !playerEntry.HasComponent(comp.DrugEffect) {
+					playerEntry.AddComponent(comp.DrugEffect)
+					// comp.DrugEffect.Get(playerEntry).EffectTimer.Reset()
+					inventory.EmeticDrug -= 1
+				}
 			}
-
 		}
 
 	}
