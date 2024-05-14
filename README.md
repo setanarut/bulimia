@@ -4,7 +4,7 @@ A top-down 2D game prototype made with Ebitengine
 
 Play demo: https://setanarut.github.io/bulimia/
 
-![ss](https://github.com/setanarut/bulimia/assets/36481442/41c96e9c-c0e6-4d63-966f-2df3abcab166)
+![ss](https://github.com/setanarut/bulimia/assets/36481442/8c7974e6-5877-4745-a058-5e72f3c6f11c)
 
 ## To do
 
