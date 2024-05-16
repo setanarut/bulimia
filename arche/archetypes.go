@@ -75,8 +75,9 @@ func SpawnEnemy(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 	comp.Damage.SetValue(entry, 0.1)
 
 	render := comp.Render.Get(entry)
-	liv := comp.Char.Get(entry)
-	liv.Speed = 480
+	char := comp.Char.Get(entry)
+	char.Speed = 480
+	char.Health = 100
 	render.AnimPlayer = engine.NewAnimationPlayer(res.Enemy)
 	render.AnimPlayer.AddStateAnimation("idle", 200, 0, 100, 100, 1, false)
 	render.DrawScale = engine.GetCircleScaleFactor(r, render.AnimPlayer.CurrentFrame)

@@ -24,10 +24,11 @@ func NewCollisionSystem() *CollisionSystem {
 }
 
 func (ps *CollisionSystem) Init() {
-	res.Space.UseSpatialHash(64, 200)
+	res.Space.UseSpatialHash(50, 1000)
 	res.Space.CollisionBias = math.Pow(0.3, 60)
 	res.Space.CollisionSlop = 0.5
 	res.Space.Damping = 0.03
+	res.Space.Iterations = 1
 
 	// Player
 	res.Space.NewCollisionHandler(arche.CollisionTypePlayer, arche.CollisionTypeDoor).BeginFunc = playerDoorEnter

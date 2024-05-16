@@ -73,7 +73,7 @@ var Door = donburi.NewComponentType[DoorData]()
 var DrugEffect = donburi.NewComponentType[DrugEffectData](DrugEffectData{
 	VomitCooldownDuration: -(time.Second / 2),
 	FoodPerCooldown:       4,
-	Speed:                 -100,
+	Speed:                 -200,
 	EffectTimer:           engine.NewTimer(time.Second * 6),
 })
 
@@ -99,8 +99,8 @@ var AI = donburi.NewComponentType[AIData](AIData{Follow: true, FollowDistance: 3
 var Char = donburi.NewComponentType[CharacterData](CharacterData{
 	Speed:              500,
 	Accel:              100,
-	Health:             100.,
-	VomitCooldownTimer: engine.NewTimer(time.Second / 4),
+	Health:             10000.,
+	VomitCooldownTimer: engine.NewTimer(time.Second / 5),
 	FoodPerCooldown:    1,
 })
 

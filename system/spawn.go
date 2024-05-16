@@ -88,8 +88,9 @@ func (sys *EntitySpawnSystem) Update() {
 
 	if inpututil.IsKeyJustPressed(ebiten.KeyF) {
 
-		for range 10 {
-			arche.SpawnDefaultEnemy(engine.RandomPointInBB(res.CurrentRoom, 64))
+		for range 500 {
+			// arche.SpawnDefaultEnemy(engine.RandomPointInBB(res.CurrentRoom, 64))
+			arche.SpawnEnemy(0.3, 0.3, 0.5, 8, engine.RandomPointInBB(res.CurrentRoom, 64))
 		}
 
 	}
