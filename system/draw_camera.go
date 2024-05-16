@@ -69,7 +69,7 @@ func (ds *DrawCameraSystem) Draw() {
 
 	comp.EnemyTag.Each(res.World, func(e *donburi.Entry) {
 		r := comp.Render.Get(e)
-		r.ScaleColor = comp.Gradient.Get(e).At(comp.Living.Get(e).Health)
+		r.ScaleColor = comp.Gradient.Get(e).At(comp.Char.Get(e).Health)
 		ds.DrawEntry(e)
 
 	})

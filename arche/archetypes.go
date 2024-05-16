@@ -35,7 +35,7 @@ func SpawnPlayer(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 
 	entry.AddComponent(comp.PlayerTag)
 	entry.AddComponent(comp.Inventory)
-	entry.AddComponent(comp.Living)
+	entry.AddComponent(comp.Char)
 	entry.AddComponent(comp.Render)
 	render := comp.Render.Get(entry)
 
@@ -66,7 +66,7 @@ func SpawnEnemy(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 
 	entry.AddComponent(comp.EnemyTag)
 	entry.AddComponent(comp.AI)
-	entry.AddComponent(comp.Living)
+	entry.AddComponent(comp.Char)
 	entry.AddComponent(comp.Render)
 	entry.AddComponent(comp.Gradient)
 	entry.AddComponent(comp.Damage)
@@ -75,7 +75,7 @@ func SpawnEnemy(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 	comp.Damage.SetValue(entry, 0.1)
 
 	render := comp.Render.Get(entry)
-	liv := comp.Living.Get(entry)
+	liv := comp.Char.Get(entry)
 	liv.Speed = 480
 	render.AnimPlayer = engine.NewAnimationPlayer(res.Enemy)
 	render.AnimPlayer.AddStateAnimation("idle", 200, 0, 100, 100, 1, false)

@@ -64,7 +64,7 @@ func (ps *CollisionSystem) Update() {
 
 			ene := comp.Body.Get(e)
 			ai := *comp.AI.Get(e)
-			livingData := comp.Living.Get(e)
+			livingData := comp.Char.Get(e)
 
 			if ai.Follow {
 				dist := playerBody.Position().Distance(ene.Position())
@@ -182,12 +182,12 @@ func enemyPlayerPostSolve(arb *cm.Arbiter, space *cm.Space, userData interface{}
 	enemyBody, playerBody := arb.Bodies()
 	enemyEntry, eok := enemyBody.UserData.(*donburi.Entry)
 	playerEntry, pok := playerBody.UserData.(*donburi.Entry)
-	var livingData *comp.LivingData
+	var livingData *comp.CharacterData
 	if eok && pok {
 
 		if playerEntry.Valid() && enemyEntry.Valid() {
-			if playerEntry.HasComponent(comp.Living) && enemyEntry.HasComponent(comp.Damage) && playerEntry.HasComponent(comp.Render) {
-				livingData = comp.Living.Get(playerEntry)
+			if playerEntry.HasComponent(comp.Char) && enemyEntry.HasComponent(comp.Damage) && playerEntry.HasComponent(comp.Render) {
+				livingData = comp.Char.Get(playerEntry)
 				comp.Render.Get(playerEntry).ScaleColor = colornames.Red
 				livingData.Health -= *comp.Damage.Get(enemyEntry)
 				// livingData.Health -= donburi.GetValue[float64](enemyEntry, comp.Damage)
@@ -219,8 +219,8 @@ func foodEnemyCollisionBegin(arb *cm.Arbiter, space *cm.Space, userData interfac
 
 	if enemyEntry.Valid() {
 
-		if enemyEntry.HasComponent(comp.Living) {
-			livingData := comp.Living.Get(enemyEntry)
+		if enemyEntry.HasComponent(comp.Char) {
+			livingData := comp.Char.Get(enemyEntry)
 
 			if bulletEntry.Valid() {
 				livingData.Health -= *comp.Damage.Get(bulletEntry)
@@ -283,7 +283,7 @@ func Explode(bomb *donburi.Entry) {
 
 	comp.EnemyTag.Each(bomb.World, func(enemy *donburi.Entry) {
 
-		livingData := comp.Living.Get(enemy)
+		livingData := comp.Char.Get(enemy)
 		enemyBody := comp.Body.Get(enemy)
 
 		queryInfo := space.SegmentQueryFirst(bombBody.Position(), enemyBody.Position(), 0, arche.FilterBombRaycast)

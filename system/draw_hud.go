@@ -53,17 +53,18 @@ func (hs *DrawHUDSystem) Draw() {
 				playerInventory := comp.Inventory.Get(p)
 
 				if p.HasComponent(comp.DrugEffect) {
-					effectPercent := comp.DrugEffect.Get(p).EffectTimer.PercentDone()
+					remaining := comp.DrugEffect.Get(p).EffectTimer.RemainingSecondsString()
+
 					hs.statsTextOptions.GeoM.Translate(200, 10)
-					text.Draw(res.Screen, fmt.Sprintf("Emetic Effect %.2f", effectPercent), res.FuturaBig, hs.statsTextOptions)
+					text.Draw(res.Screen, fmt.Sprintf("Emetic Effect %s", remaining), res.FuturaBig, hs.statsTextOptions)
 					hs.statsTextOptions.GeoM.Translate(-200, -10)
 				}
 
-				liv := *comp.Living.Get(p)
+				liv := *comp.Char.Get(p)
 				text.Draw(
 					res.Screen,
 					fmt.Sprintf(
-						"Foods: %d\nBombs: %d\nKeys: %v\nEmeticDrug: %v\nHealth: %v",
+						"Foods: %d\nBombs: %d\nKeys: %v\nEmeticDrug: %v\nHealth: %.2f",
 						playerInventory.Foods,
 						playerInventory.Bombs,
 						playerInventory.Keys,

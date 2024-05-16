@@ -50,26 +50,31 @@ type RenderData struct {
 	DIO        *ebiten.DrawImageOptions
 	ScaleColor color.Color
 }
-type LivingData struct {
-	Speed, Accel, Health  float64
-	ShootingCooldownTimer engine.Timer
-	BulletPerCoolDown     int
+type CharacterData struct {
+	Speed, Accel, Health float64
+	VomitCooldownTimer   engine.Timer
+	FoodPerCooldown      int
 }
 type DrugEffectData struct {
-	SpeedScaleFactor, Accel, Health float64
-	ShootingCooldown                time.Duration
-	ExtraBulletPerCoolDown          int
-	EffectTimer                     engine.Timer
+	Speed, Accel, Health  float64
+	VomitCooldownDuration time.Duration
+	FoodPerCooldown       int
+	EffectTimer           engine.Timer
 }
 
-var Inventory = donburi.NewComponentType[InventoryData](InventoryData{Bombs: 100, Foods: 100, Keys: make([]int, 0)})
+var Inventory = donburi.NewComponentType[InventoryData](InventoryData{
+	Bombs:      100,
+	EmeticDrug: 20,
+	Foods:      100,
+	Keys:       make([]int, 0),
+})
 var Door = donburi.NewComponentType[DoorData]()
 
 var DrugEffect = donburi.NewComponentType[DrugEffectData](DrugEffectData{
-	ShootingCooldown:       time.Second / 20,
-	ExtraBulletPerCoolDown: 4,
-	SpeedScaleFactor:       0.5,
-	EffectTimer:            engine.NewTimer(time.Second * 5),
+	VomitCooldownDuration: -(time.Second / 2),
+	FoodPerCooldown:       4,
+	Speed:                 -100,
+	EffectTimer:           engine.NewTimer(time.Second * 6),
 })
 
 var Collectible = donburi.NewComponentType[CollectibleData]()
@@ -91,12 +96,12 @@ var Gradient = donburi.NewComponentType[colorgrad.Gradient](colorgrad.NewGradien
 var Body = donburi.NewComponentType[cm.Body]()
 var AI = donburi.NewComponentType[AIData](AIData{Follow: true, FollowDistance: 300})
 
-var Living = donburi.NewComponentType[LivingData](LivingData{
-	Speed:                 500,
-	Accel:                 100,
-	Health:                100.,
-	ShootingCooldownTimer: engine.NewTimer(time.Second / 4),
-	BulletPerCoolDown:     1,
+var Char = donburi.NewComponentType[CharacterData](CharacterData{
+	Speed:              500,
+	Accel:              100,
+	Health:             100.,
+	VomitCooldownTimer: engine.NewTimer(time.Second / 4),
+	FoodPerCooldown:    1,
 })
 
 var Damage = donburi.NewComponentType[float64](20.0)

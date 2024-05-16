@@ -11,8 +11,7 @@ import (
 	"github.com/yohamta/donburi"
 )
 
-var BombDistance float64 = 40
-var HoldLivingData comp.LivingData
+var bombDistance float64 = 40
 
 type PlayerControlSystem struct {
 }
@@ -33,7 +32,7 @@ func (sys *PlayerControlSystem) Update() {
 
 	if playerEntry, ok := comp.PlayerTag.First(res.World); ok {
 
-		livingData := comp.Living.Get(playerEntry)
+		charData := comp.Char.Get(playerEntry)
 		inventory := comp.Inventory.Get(playerEntry)
 		playerBody := comp.Body.Get(playerEntry)
 		playerRenderData := comp.Render.Get(playerEntry)
@@ -41,25 +40,19 @@ func (sys *PlayerControlSystem) Update() {
 
 		if playerEntry.HasComponent(comp.DrugEffect) {
 
-			de := comp.DrugEffect.Get(playerEntry)
+			drugEffectData := comp.DrugEffect.Get(playerEntry)
 
-			if de.EffectTimer.IsStart() {
-
-				HoldLivingData = *livingData
-				livingData.BulletPerCoolDown += de.ExtraBulletPerCoolDown
-				livingData.ShootingCooldownTimer.SetDuration(de.ShootingCooldown)
-				livingData.Speed *= de.SpeedScaleFactor
+			if drugEffectData.EffectTimer.IsStart() {
+				AddDrugEffect(charData, drugEffectData)
 
 			}
 
-			if de.EffectTimer.IsReady() {
-				livingData.BulletPerCoolDown -= de.ExtraBulletPerCoolDown
-				livingData.ShootingCooldownTimer.SetDuration(HoldLivingData.ShootingCooldownTimer.Duration())
-				livingData.Speed = HoldLivingData.Speed
+			if drugEffectData.EffectTimer.IsReady() {
+				RemoveDrugEffect(charData, drugEffectData)
 				playerEntry.RemoveComponent(comp.DrugEffect)
 			}
 
-			de.EffectTimer.Update()
+			drugEffectData.EffectTimer.Update()
 		}
 
 		if inventory.Foods > 0 {
@@ -69,12 +62,12 @@ func (sys *PlayerControlSystem) Update() {
 				playerRenderData.AnimPlayer.SetState("shootR")
 				playerBody.SetAngle(res.Input.ArrowDirection.ToAngle())
 
-				if livingData.ShootingCooldownTimer.IsReady() {
-					livingData.ShootingCooldownTimer.Reset()
+				if charData.VomitCooldownTimer.IsReady() {
+					charData.VomitCooldownTimer.Reset()
 				}
 
-				if livingData.ShootingCooldownTimer.IsStart() {
-					for range livingData.BulletPerCoolDown {
+				if charData.VomitCooldownTimer.IsStart() {
+					for range charData.FoodPerCooldown {
 						dir := engine.Rotate(res.Input.ArrowDirection.Mult(1000), engine.RandRange(0.2, -0.2))
 						bullet := arche.SpawnDefaultFood(playerPos)
 						bulletBody := comp.Body.Get(bullet)
@@ -90,7 +83,7 @@ func (sys *PlayerControlSystem) Update() {
 
 		}
 
-		livingData.ShootingCooldownTimer.Update()
+		charData.VomitCooldownTimer.Update()
 
 		if inpututil.IsKeyJustReleased(ebiten.KeyArrowUp) {
 			playerRenderData.AnimPlayer.SetState("up")
@@ -128,7 +121,7 @@ func (sys *PlayerControlSystem) Update() {
 
 			// Bomba bırak
 			if inpututil.IsKeyJustPressed(ebiten.KeyShiftRight) {
-				bombPos := res.Input.LastPressedDirection.Neg().Mult(BombDistance)
+				bombPos := res.Input.LastPressedDirection.Neg().Mult(bombDistance)
 				arche.SpawnDefaultBomb(playerPos.Add(bombPos))
 				inventory.Bombs -= 1
 			}
@@ -168,4 +161,15 @@ func (sys *PlayerControlSystem) Update() {
 }
 
 func (sys *PlayerControlSystem) Draw() {
+}
+
+func AddDrugEffect(charData *comp.CharacterData, drugEffectData *comp.DrugEffectData) {
+	charData.FoodPerCooldown += drugEffectData.FoodPerCooldown
+	charData.VomitCooldownTimer.Target += drugEffectData.VomitCooldownDuration
+	charData.Speed += drugEffectData.Speed
+}
+func RemoveDrugEffect(charData *comp.CharacterData, drugEffectData *comp.DrugEffectData) {
+	charData.FoodPerCooldown -= drugEffectData.FoodPerCooldown
+	charData.VomitCooldownTimer.Target -= drugEffectData.VomitCooldownDuration
+	charData.Speed -= drugEffectData.Speed
 }

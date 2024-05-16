@@ -1,58 +1,47 @@
 package engine
 
 import (
+	"fmt"
 	"time"
 )
 
 type Timer struct {
-	duration      time.Duration
-	CurrentFrames int
-	TargetFrames  int
+	Target  time.Duration
+	Elapsed time.Duration
+	tick    time.Duration
 }
 
 func NewTimer(duration time.Duration) Timer {
+
 	return Timer{
-		duration:      duration,
-		CurrentFrames: 0,
-		TargetFrames:  int(duration.Milliseconds()) * 60 / 1000,
+		Target:  duration,
+		Elapsed: 0,
+		tick:    time.Second / 60,
 	}
+
 }
 
 func (t *Timer) Update() {
-	if t.CurrentFrames < t.TargetFrames {
-		t.CurrentFrames++
+	if t.Elapsed < t.Target {
+		t.Elapsed += t.tick
+
 	}
 }
 
-func (t *Timer) Duration() time.Duration {
-	return t.duration
-}
-
-func (t *Timer) SetDuration(duration time.Duration) {
-	t.duration = duration
-	t.TargetFrames = int(t.duration.Milliseconds()) * 60 / 1000
-}
-
-func (t *Timer) AddDuration(duration time.Duration) {
-	t.duration += duration
-	t.TargetFrames = int(t.duration.Milliseconds()) * 60 / 1000
-}
-func (t *Timer) SubtractDuration(duration time.Duration) {
-	t.duration -= duration
-	t.TargetFrames = int(t.duration.Milliseconds()) * 60 / 1000
-}
-
 func (t *Timer) IsReady() bool {
-	return t.CurrentFrames >= t.TargetFrames
+	return t.Elapsed > t.Target
 }
 func (t *Timer) IsStart() bool {
-	return t.CurrentFrames == 0
+	return t.Elapsed == 0
 }
 
 func (t *Timer) Reset() {
-	t.CurrentFrames = 0
+	t.Elapsed = 0
 }
 
-func (t *Timer) PercentDone() float64 {
-	return float64(t.CurrentFrames) / float64(t.TargetFrames)
+func (t *Timer) Remaining() time.Duration {
+	return t.Target - t.Elapsed
+}
+func (t *Timer) RemainingSecondsString() string {
+	return fmt.Sprintf("%.1fs", t.Remaining().Abs().Seconds())
 }
