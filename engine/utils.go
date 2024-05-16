@@ -18,18 +18,6 @@ func GetEbitenImageOffset(img *ebiten.Image) cm.Vec2 {
 	return cm.Vec2{float64(img.Bounds().Dx()), float64(img.Bounds().Dy())}.Mult(0.5).Neg()
 }
 
-func ApplyGeoM(pos cm.Vec2, geom *ebiten.GeoM) cm.Vec2 {
-	x, y := geom.Apply(pos.X, pos.Y)
-	return cm.Vec2{x, y}
-}
-
-func TeleportBody(b *cm.Body, pos cm.Vec2) {
-	b.SetAngularVelocity(0)
-	b.SetAngle(0)
-	b.SetVelocity(0, 0)
-	b.SetPosition(pos)
-}
-
 func MapRange(v, a, b, c, d float64) float64 {
 	return (v-a)/(b-a)*(d-c) + c
 }

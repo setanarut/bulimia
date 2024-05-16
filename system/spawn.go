@@ -21,7 +21,7 @@ func NewEntitySpawnSystem() *EntitySpawnSystem {
 }
 
 func (sys *EntitySpawnSystem) Init() {
-	res.CurrentRoom = res.ScreenBox
+	res.CurrentRoom = res.ScreenRect
 
 	res.Rooms = make([]cm.BB, 0)
 	res.Rooms = append(res.Rooms, res.CurrentRoom)                                        // middle 0
@@ -108,7 +108,7 @@ func (sys *EntitySpawnSystem) Draw() {
 }
 
 func ResetLevel() {
-	res.CurrentRoom = res.ScreenBox
+	res.CurrentRoom = res.ScreenRect
 	res.Camera.LookAt(res.CurrentRoom.Center())
 
 	player, ok := comp.PlayerTag.First(res.World)

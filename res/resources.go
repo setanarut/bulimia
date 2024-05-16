@@ -1,7 +1,6 @@
 package res
 
 import (
-	"bulimia/comp"
 	"bulimia/engine"
 	"bulimia/engine/cm"
 	"embed"
@@ -18,11 +17,11 @@ import (
 var assets embed.FS
 
 var (
-	Screen    *ebiten.Image
-	Camera    *engine.Camera
-	ScreenBox cm.BB
-	World     donburi.World = donburi.NewWorld()
-	Space     *cm.Space     = cm.NewSpace()
+	Screen     *ebiten.Image
+	Camera     *engine.Camera
+	ScreenRect cm.BB
+	World      donburi.World = donburi.NewWorld()
+	Space      *cm.Space     = cm.NewSpace()
 
 	Rooms       []cm.BB = make([]cm.BB, 0)
 	CurrentRoom cm.BB
@@ -46,29 +45,3 @@ func init() {
 	Wall.Fill(color.White)
 
 }
-
-func PlayerVelocityFunc(body *cm.Body, gravity cm.Vec2, damping float64, dt float64) {
-
-	entry, ok := body.UserData.(*donburi.Entry)
-
-	if ok {
-		if entry.Valid() {
-			livingData := comp.Char.Get(entry)
-			WASDAxisVector := Input.WASDDirection.Normalize().Mult(livingData.Speed)
-			body.SetVelocityVector(body.Velocity().LerpDistance(WASDAxisVector, livingData.Accel))
-		}
-	}
-}
-
-// func ItemVelocityFunc(body *cm.Body, gravity cm.Vec2, damping float64, dt float64) {
-
-// 	entry, ok := body.UserData.(*donburi.Entry)
-
-// 	if ok {
-// 		if entry.Valid() {
-
-// 			WASDAxisVector := Input.WASDDirection.Normalize().Mult(livingData.Speed)
-// 			body.SetVelocityVector(body.Velocity().LerpDistance(WASDAxisVector, livingData.Accel))
-// 		}
-// 	}
-// }

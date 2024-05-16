@@ -30,8 +30,8 @@ func (g *Game) Init() {
 	w, h := 800, 600
 
 	res.Screen = ebiten.NewImage(w, h)
-	res.ScreenBox = cm.NewBB(0, 0, float64(w), float64(h))
-	res.Camera = engine.NewCamera(res.ScreenBox.Center(), res.ScreenBox.R, res.ScreenBox.T)
+	res.ScreenRect = cm.NewBB(0, 0, float64(w), float64(h))
+	res.Camera = engine.NewCamera(res.ScreenRect.Center(), res.ScreenRect.R, res.ScreenRect.T)
 	res.Camera.Lerp = true
 	g.systems = []System{
 		system.NewEntitySpawnSystem(),

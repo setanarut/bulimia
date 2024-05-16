@@ -30,7 +30,7 @@ func (ds *DrawCameraSystem) Update() {
 		res.Camera.ZoomFactor += 1
 	}
 
-	res.Camera.LookAt(engine.InvPosVectY(res.CurrentRoom.Center(), res.ScreenBox.T))
+	res.Camera.LookAt(engine.InvPosVectY(res.CurrentRoom.Center(), res.ScreenRect.T))
 
 	comp.Render.Each(res.World, func(e *donburi.Entry) {
 		comp.Render.Get(e).AnimPlayer.Update()
@@ -84,7 +84,7 @@ func (ds *DrawCameraSystem) DrawEntry(e *donburi.Entry) {
 
 	body := comp.Body.Get(e)
 	render := comp.Render.Get(e)
-	pos := engine.InvPosVectY(body.Position(), res.ScreenBox.T)
+	pos := engine.InvPosVectY(body.Position(), res.ScreenRect.T)
 
 	render.DIO.GeoM.Reset()
 	render.DIO.GeoM.Translate(render.Offset.X, render.Offset.Y)

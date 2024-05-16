@@ -35,7 +35,7 @@ func (hs *DrawHUDSystem) Init() {
 	hs.centerTextOptions.LayoutOptions.SecondaryAlign = text.AlignCenter
 	hs.centerTextOptions.Filter = ebiten.FilterLinear
 	hs.centerTextOptions.LineSpacing = res.FuturaBig.Size * 1.2
-	center := res.ScreenBox.Center()
+	center := res.ScreenRect.Center()
 	hs.centerTextOptions.GeoM.Translate(center.X, center.Y)
 
 }

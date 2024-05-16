@@ -4,6 +4,7 @@ import (
 	"bulimia/arche"
 	"bulimia/comp"
 	"bulimia/engine"
+	"bulimia/engine/cm"
 	"bulimia/res"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -21,6 +22,10 @@ func NewPlayerControlSystem() *PlayerControlSystem {
 }
 
 func (sys *PlayerControlSystem) Init() {
+	if playerEntry, ok := comp.PlayerTag.First(res.World); ok {
+		playerBody := comp.Body.Get(playerEntry)
+		playerBody.SetVelocityUpdateFunc(PlayerVelocityFunc)
+	}
 
 }
 
@@ -134,7 +139,6 @@ func (sys *PlayerControlSystem) Update() {
 			if inventory.EmeticDrug > 0 {
 				if !playerEntry.HasComponent(comp.DrugEffect) {
 					playerEntry.AddComponent(comp.DrugEffect)
-					// comp.DrugEffect.Get(playerEntry).EffectTimer.Reset()
 					inventory.EmeticDrug -= 1
 				}
 			}
@@ -172,4 +176,17 @@ func RemoveDrugEffect(charData *comp.CharacterData, drugEffectData *comp.DrugEff
 	charData.FoodPerCooldown -= drugEffectData.FoodPerCooldown
 	charData.VomitCooldownTimer.Target -= drugEffectData.VomitCooldownDuration
 	charData.Speed -= drugEffectData.Speed
+}
+
+func PlayerVelocityFunc(body *cm.Body, gravity cm.Vec2, damping float64, dt float64) {
+
+	entry, ok := body.UserData.(*donburi.Entry)
+
+	if ok {
+		if entry.Valid() {
+			livingData := comp.Char.Get(entry)
+			WASDAxisVector := res.Input.WASDDirection.Normalize().Mult(livingData.Speed)
+			body.SetVelocityVector(body.Velocity().LerpDistance(WASDAxisVector, livingData.Accel))
+		}
+	}
 }

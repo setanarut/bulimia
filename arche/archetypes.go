@@ -29,7 +29,6 @@ func SpawnBody(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 func SpawnPlayer(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 	entry := SpawnBody(m, e, f, r, pos)
 	body := comp.Body.Get(entry)
-	body.SetVelocityUpdateFunc(res.PlayerVelocityFunc)
 	body.FirstShape().SetCollisionType(CollisionTypePlayer)
 	body.FirstShape().Filter = cm.NewShapeFilter(0, BitmaskPlayer, cm.AllCategories&^BitmaskFood)
 
