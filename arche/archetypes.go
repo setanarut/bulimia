@@ -47,7 +47,7 @@ func SpawnPlayer(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 	render.AnimPlayer.AddStateAnimation("up", 0, w*2, w, w, 4, true)
 	render.AnimPlayer.AddStateAnimation("down", 0, w*3, w, w, 4, true)
 
-	render.AnimPlayer.SetFPS(8)
+	render.AnimPlayer.SetFPS(9)
 	render.DrawScale = engine.GetCircleScaleFactor(r, render.AnimPlayer.CurrentFrame)
 	render.Offset = engine.GetEbitenImageOffset(render.AnimPlayer.CurrentFrame)
 	render.ScaleColor = colornames.Yellow

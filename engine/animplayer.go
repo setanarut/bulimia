@@ -35,7 +35,7 @@ func (ap *AnimationPlayer) AddStateAnimation(stateName string, x, y, w, h, frame
 	}
 
 	if pingpong {
-		for i := frameCount - 2; i > 1; i-- {
+		for i := frameCount - 2; i > 0; i-- {
 			subImages = append(subImages, subImages[i])
 		}
 	}

@@ -9,8 +9,8 @@ import (
 	"github.com/yohamta/donburi"
 )
 
-func SpawnDefaultPlayer(pos cm.Vec2) {
-	SpawnPlayer(1, 0.3, 0.5, 20, pos)
+func SpawnDefaultPlayer(pos cm.Vec2) *donburi.Entry {
+	return SpawnPlayer(1, 0.3, 0.5, 20, pos)
 
 }
 func SpawnDefaultEnemy(pos cm.Vec2) *donburi.Entry {
