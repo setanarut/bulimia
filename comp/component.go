@@ -46,6 +46,7 @@ type DoorData struct {
 type RenderData struct {
 	Offset     cm.Vec2
 	DrawScale  cm.Vec2
+	DrawAngle  float64
 	AnimPlayer *engine.AnimationPlayer
 	DIO        *ebiten.DrawImageOptions
 	ScaleColor color.Color
@@ -82,6 +83,7 @@ var Collectible = donburi.NewComponentType[CollectibleData]()
 var Render = donburi.NewComponentType[RenderData](RenderData{
 	Offset:     cm.Vec2{},
 	DrawScale:  cm.Vec2{1, 1},
+	DrawAngle:  0.0,
 	DIO:        &ebiten.DrawImageOptions{Filter: ebiten.FilterLinear},
 	ScaleColor: color.White,
 })

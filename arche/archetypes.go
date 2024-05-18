@@ -38,14 +38,10 @@ func SpawnPlayer(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 	entry.AddComponent(comp.Render)
 	render := comp.Render.Get(entry)
 
-	render.AnimPlayer = engine.NewAnimationPlayer(res.Pacman)
+	render.AnimPlayer = engine.NewAnimationPlayer(res.Player)
 	w := 100
-	render.AnimPlayer.AddStateAnimation("shootR", 0, 0, w, w, 1, false)
-
+	render.AnimPlayer.AddStateAnimation("shoot", 0, 0, w, w, 1, false)
 	render.AnimPlayer.AddStateAnimation("right", 0, 0, w, w, 4, true)
-	render.AnimPlayer.AddStateAnimation("left", 0, w, w, w, 4, true)
-	render.AnimPlayer.AddStateAnimation("up", 0, w*2, w, w, 4, true)
-	render.AnimPlayer.AddStateAnimation("down", 0, w*3, w, w, 4, true)
 
 	render.AnimPlayer.SetFPS(9)
 	render.DrawScale = engine.GetCircleScaleFactor(r, render.AnimPlayer.CurrentFrame)
@@ -57,8 +53,6 @@ func SpawnPlayer(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 func SpawnEnemy(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 	entry := SpawnBody(m, e, f, r, pos)
 	body := comp.Body.Get(entry)
-
-	// body.SetMoment(cm.MomentForCircle(m, 0, r*2, cm.Vec2{}))
 
 	body.FirstShape().Filter = cm.NewShapeFilter(0, BitmaskEnemy, cm.AllCategories)
 	body.FirstShape().SetCollisionType(CollisionTypeEnemy)
@@ -77,8 +71,8 @@ func SpawnEnemy(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 	char := comp.Char.Get(entry)
 	char.Speed = 480
 	char.Health = 100
-	render.AnimPlayer = engine.NewAnimationPlayer(res.Enemy)
-	render.AnimPlayer.AddStateAnimation("idle", 200, 0, 100, 100, 1, false)
+	render.AnimPlayer = engine.NewAnimationPlayer(res.EnemyBody)
+	render.AnimPlayer.AddStateAnimation("idle", 0, 0, 100, 100, 1, false)
 	render.DrawScale = engine.GetCircleScaleFactor(r, render.AnimPlayer.CurrentFrame)
 	render.Offset = engine.GetEbitenImageOffset(render.AnimPlayer.CurrentFrame)
 	render.AnimPlayer.Paused = true

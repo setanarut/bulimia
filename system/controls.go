@@ -60,13 +60,11 @@ func (sys *PlayerControlSystem) Update() {
 			drugEffectData.EffectTimer.Update()
 		}
 
-		if inventory.Foods > 0 {
+		if !res.Input.ArrowDirection.Equal(engine.NoDirection) {
+			playerRenderData.AnimPlayer.SetState("shoot")
+			playerRenderData.DrawAngle = res.Input.ArrowDirection.ToAngle()
 
-			if !res.Input.ArrowDirection.Equal(engine.NoDirection) {
-
-				playerRenderData.AnimPlayer.SetState("shootR")
-				playerBody.SetAngle(res.Input.ArrowDirection.ToAngle())
-
+			if inventory.Foods > 0 {
 				if charData.VomitCooldownTimer.IsReady() {
 					charData.VomitCooldownTimer.Reset()
 				}
@@ -78,49 +76,16 @@ func (sys *PlayerControlSystem) Update() {
 						bulletBody := comp.Body.Get(bullet)
 						bulletBody.ApplyImpulseAtWorldPoint(dir, playerPos)
 					}
-
 				}
-
-			} else {
-				playerBody.SetAngle(0)
-
 			}
+
+		} else {
+			playerRenderData.AnimPlayer.SetState("right")
+			playerRenderData.DrawAngle = res.Input.LastPressedDirection.ToAngle()
 
 		}
 
 		charData.VomitCooldownTimer.Update()
-
-		if inpututil.IsKeyJustReleased(ebiten.KeyArrowUp) {
-			playerRenderData.AnimPlayer.SetState("up")
-		}
-		if inpututil.IsKeyJustReleased(ebiten.KeyArrowDown) {
-			playerRenderData.AnimPlayer.SetState("down")
-		}
-		if inpututil.IsKeyJustReleased(ebiten.KeyArrowLeft) {
-			playerRenderData.AnimPlayer.SetState("left")
-		}
-		if inpututil.IsKeyJustReleased(ebiten.KeyArrowRight) {
-			playerRenderData.AnimPlayer.SetState("right")
-		}
-
-		if res.Input.ArrowDirection.Equal(engine.NoDirection) {
-
-			switch res.Input.WASDDirection {
-
-			case engine.RightDirection:
-				playerRenderData.AnimPlayer.SetState("right")
-
-			case engine.LeftDirection:
-				playerRenderData.AnimPlayer.SetState("left")
-
-			case engine.UpDirection:
-				playerRenderData.AnimPlayer.SetState("up")
-
-			case engine.DownDirection:
-				playerRenderData.AnimPlayer.SetState("down")
-
-			}
-		}
 
 		if inventory.Bombs > 0 {
 

@@ -30,9 +30,10 @@ var (
 
 var (
 	Wall      = ebiten.NewImage(30, 30)
-	Pacman    = engine.LoadImage("assets/pac.png", assets)
+	Player    = engine.LoadImage("assets/player.png", assets)
 	Items     = engine.LoadImage("assets/items.png", assets)
-	Enemy     = engine.LoadImage("assets/enemy.png", assets)
+	EnemyEyes = engine.LoadImage("assets/enemy_eyes.png", assets)
+	EnemyBody = engine.LoadImage("assets/enemy_body.png", assets)
 	Futura    = engine.LoadTextFace("assets/futura.ttf", 20, assets)
 	FuturaBig = &text.GoTextFace{
 		Source:   Futura.Source,
