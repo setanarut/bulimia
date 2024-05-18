@@ -71,12 +71,13 @@ func (hs *DrawHUDSystem) Draw() {
 				text.Draw(
 					res.Screen,
 					fmt.Sprintf(
-						"Foods: %d\nBombs: %d\nKeys: %v\nEmeticDrug: %v\nHealth: %.2f",
+						"Foods: %d\nBombs: %d\nKeys: %v\nEmeticDrug: %v\nHealth: %.2f\nSpeed: %v",
 						playerInventory.Foods,
 						playerInventory.Bombs,
 						playerInventory.Keys,
 						playerInventory.EmeticDrug,
 						liv.Health,
+						liv.Speed,
 					),
 					res.Futura,
 					hs.statsTextOptions)

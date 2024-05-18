@@ -1,6 +1,7 @@
 package res
 
 import (
+	"bulimia/comp"
 	"bulimia/engine"
 	"bulimia/engine/cm"
 	"embed"
@@ -45,4 +46,17 @@ var (
 func init() {
 	Wall.Fill(color.White)
 
+}
+
+func PlayerVelocityFunc(body *cm.Body, gravity cm.Vec2, damping float64, dt float64) {
+
+	entry, ok := body.UserData.(*donburi.Entry)
+
+	if ok {
+		if entry.Valid() {
+			livingData := comp.Char.Get(entry)
+			WASDAxisVector := Input.WASDDirection.Normalize().Mult(livingData.Speed)
+			body.SetVelocityVector(body.Velocity().LerpDistance(WASDAxisVector, livingData.Accel))
+		}
+	}
 }
