@@ -71,10 +71,10 @@ func (sys *PlayerControlSystem) Update() {
 				}
 
 				if charData.VomitCooldownTimer.IsStart() {
-					if inventory.Foods > 0 {
-						inventory.Foods -= 1
-					}
 					for range charData.FoodPerCooldown {
+						if inventory.Foods > 0 {
+							inventory.Foods -= 1
+						}
 						dir := engine.Rotate(res.Input.ArrowDirection.Mult(1000), engine.RandRange(0.2, -0.2))
 						bullet := arche.SpawnDefaultFood(playerPos)
 						bulletBody := comp.Body.Get(bullet)
@@ -137,13 +137,13 @@ func (sys *PlayerControlSystem) Draw() {
 }
 
 func AddDrugEffect(charData *comp.CharacterData, drugEffectData *comp.DrugEffectData) {
-	charData.FoodPerCooldown += drugEffectData.AddFoodPerCooldown
-	charData.VomitCooldownTimer.Target += drugEffectData.AddVomitCooldownDuration
+	charData.FoodPerCooldown += drugEffectData.ExtraVomit
+	charData.VomitCooldownTimer.Target += drugEffectData.VomitCooldown
 	charData.Speed += drugEffectData.AddMovementSpeed
 }
 func RemoveDrugEffect(charData *comp.CharacterData, drugEffectData *comp.DrugEffectData) {
-	charData.FoodPerCooldown -= drugEffectData.AddFoodPerCooldown
-	charData.VomitCooldownTimer.Target -= drugEffectData.AddVomitCooldownDuration
+	charData.FoodPerCooldown -= drugEffectData.ExtraVomit
+	charData.VomitCooldownTimer.Target -= drugEffectData.VomitCooldown
 	charData.Speed -= drugEffectData.AddMovementSpeed
 }
 

@@ -58,24 +58,24 @@ type CharacterData struct {
 }
 type DrugEffectData struct {
 	AddMovementSpeed, Accel, Health float64
-	AddVomitCooldownDuration        time.Duration
-	AddFoodPerCooldown              int
+	VomitCooldown                   time.Duration
+	ExtraVomit                      int
 	EffectTimer                     engine.Timer
 }
 
 var Inventory = donburi.NewComponentType[InventoryData](InventoryData{
 	Bombs:      100,
 	EmeticDrug: 20,
-	Foods:      1000,
+	Foods:      5000,
 	Keys:       make([]int, 0),
 })
 var Door = donburi.NewComponentType[DoorData]()
 
 var DrugEffect = donburi.NewComponentType[DrugEffectData](DrugEffectData{
-	AddVomitCooldownDuration: -(time.Second / 10),
-	AddFoodPerCooldown:       2,
-	AddMovementSpeed:         -200,
-	EffectTimer:              engine.NewTimer(time.Second * 6),
+	VomitCooldown:    -(time.Second / 10),
+	ExtraVomit:       2,
+	AddMovementSpeed: -200,
+	EffectTimer:      engine.NewTimer(time.Second * 6),
 })
 
 var Collectible = donburi.NewComponentType[CollectibleData]()

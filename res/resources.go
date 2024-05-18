@@ -37,7 +37,7 @@ var (
 	Futura    = engine.LoadTextFace("assets/futura.ttf", 20, assets)
 	FuturaBig = &text.GoTextFace{
 		Source:   Futura.Source,
-		Size:     35,
+		Size:     28,
 		Language: language.English,
 	}
 )

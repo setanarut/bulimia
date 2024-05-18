@@ -27,7 +27,7 @@ func NewDrawHUDSystem() *DrawHUDSystem {
 }
 func (hs *DrawHUDSystem) Init() {
 	hs.statsTextOptions.ColorScale.ScaleWithColor(colornames.White)
-	hs.statsTextOptions.LineSpacing = res.Futura.Size * 1.2
+	hs.statsTextOptions.LineSpacing = res.FuturaBig.Size * 1.2
 	hs.statsTextOptions.GeoM.Translate(30, 25)
 	hs.statsTextOptions.Filter = ebiten.FilterLinear
 
@@ -53,10 +53,17 @@ func (hs *DrawHUDSystem) Draw() {
 				playerInventory := comp.Inventory.Get(p)
 
 				if p.HasComponent(comp.DrugEffect) {
-					remaining := comp.DrugEffect.Get(p).EffectTimer.RemainingSecondsString()
+					eff := comp.DrugEffect.Get(p)
 
 					hs.statsTextOptions.GeoM.Translate(250, 10)
-					text.Draw(res.Screen, fmt.Sprintf("Emetic Effect %s", remaining), res.FuturaBig, hs.statsTextOptions)
+					text.Draw(res.Screen,
+						fmt.Sprintf("Emetic Effect %s\nSpeed: %v\nVomit Cooldown: %v\nExtra Vomit: %v",
+							eff.EffectTimer.RemainingSecondsString(),
+							eff.AddMovementSpeed,
+							eff.VomitCooldown,
+							eff.ExtraVomit,
+						),
+						res.FuturaBig, hs.statsTextOptions)
 					hs.statsTextOptions.GeoM.Translate(-250, -10)
 				}
 
