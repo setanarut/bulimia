@@ -55,9 +55,9 @@ func (hs *DrawHUDSystem) Draw() {
 				if p.HasComponent(comp.DrugEffect) {
 					remaining := comp.DrugEffect.Get(p).EffectTimer.RemainingSecondsString()
 
-					hs.statsTextOptions.GeoM.Translate(200, 10)
+					hs.statsTextOptions.GeoM.Translate(250, 10)
 					text.Draw(res.Screen, fmt.Sprintf("Emetic Effect %s", remaining), res.FuturaBig, hs.statsTextOptions)
-					hs.statsTextOptions.GeoM.Translate(-200, -10)
+					hs.statsTextOptions.GeoM.Translate(-250, -10)
 				}
 
 				liv := *comp.Char.Get(p)

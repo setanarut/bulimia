@@ -64,12 +64,16 @@ func (sys *PlayerControlSystem) Update() {
 			playerRenderData.AnimPlayer.SetState("shoot")
 			playerRenderData.DrawAngle = res.Input.ArrowDirection.ToAngle()
 
+			// SHOOTING
 			if inventory.Foods > 0 {
 				if charData.VomitCooldownTimer.IsReady() {
 					charData.VomitCooldownTimer.Reset()
 				}
 
 				if charData.VomitCooldownTimer.IsStart() {
+					if inventory.Foods > 0 {
+						inventory.Foods -= 1
+					}
 					for range charData.FoodPerCooldown {
 						dir := engine.Rotate(res.Input.ArrowDirection.Mult(1000), engine.RandRange(0.2, -0.2))
 						bullet := arche.SpawnDefaultFood(playerPos)
@@ -133,14 +137,14 @@ func (sys *PlayerControlSystem) Draw() {
 }
 
 func AddDrugEffect(charData *comp.CharacterData, drugEffectData *comp.DrugEffectData) {
-	charData.FoodPerCooldown += drugEffectData.FoodPerCooldown
-	charData.VomitCooldownTimer.Target += drugEffectData.VomitCooldownDuration
-	charData.Speed += drugEffectData.Speed
+	charData.FoodPerCooldown += drugEffectData.AddFoodPerCooldown
+	charData.VomitCooldownTimer.Target += drugEffectData.AddVomitCooldownDuration
+	charData.Speed += drugEffectData.AddMovementSpeed
 }
 func RemoveDrugEffect(charData *comp.CharacterData, drugEffectData *comp.DrugEffectData) {
-	charData.FoodPerCooldown -= drugEffectData.FoodPerCooldown
-	charData.VomitCooldownTimer.Target -= drugEffectData.VomitCooldownDuration
-	charData.Speed -= drugEffectData.Speed
+	charData.FoodPerCooldown -= drugEffectData.AddFoodPerCooldown
+	charData.VomitCooldownTimer.Target -= drugEffectData.AddVomitCooldownDuration
+	charData.Speed -= drugEffectData.AddMovementSpeed
 }
 
 func PlayerVelocityFunc(body *cm.Body, gravity cm.Vec2, damping float64, dt float64) {
