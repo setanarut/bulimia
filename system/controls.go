@@ -38,6 +38,8 @@ func (sys *PlayerControlSystem) Update() {
 		playerRenderData := comp.Render.Get(playerEntry)
 		playerPos := playerBody.Position()
 
+		// playerBody.ApplyForceAtLocalPoint(res.Input.WASDDirection.Normalize().Mult(1800), playerBody.CenterOfGravity())
+
 		if playerEntry.HasComponent(comp.DrugEffect) {
 
 			drugEffectData := comp.DrugEffect.Get(playerEntry)

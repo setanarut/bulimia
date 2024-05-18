@@ -28,7 +28,7 @@ func (ps *CollisionSystem) Init() {
 	res.Space.CollisionBias = math.Pow(0.3, 60)
 	res.Space.CollisionSlop = 0.5
 	res.Space.Damping = 0.03
-	res.Space.Iterations = 1
+	// res.Space.Iterations = 1
 
 	// Player
 	res.Space.NewCollisionHandler(arche.CollisionTypePlayer, arche.CollisionTypeDoor).BeginFunc = playerDoorEnter
@@ -37,6 +37,7 @@ func (ps *CollisionSystem) Init() {
 
 	// Enemy
 	res.Space.NewCollisionHandler(arche.CollisionTypeEnemy, arche.CollisionTypePlayer).PostSolveFunc = enemyPlayerPostSolve
+	res.Space.NewCollisionHandler(arche.CollisionTypeEnemy, arche.CollisionTypePlayer).BeginFunc = enemyPlayerBegin
 	res.Space.NewCollisionHandler(arche.CollisionTypeEnemy, arche.CollisionTypePlayer).SeparateFunc = enemyPlayerSep
 
 	// Food
@@ -178,20 +179,20 @@ func playerDoorExit(arb *cm.Arbiter, space *cm.Space, userData interface{}) {
 
 }
 
-// Enemy <-> Player
+// Enemy <-> Player postsolve
 func enemyPlayerPostSolve(arb *cm.Arbiter, space *cm.Space, userData interface{}) {
 	enemyBody, playerBody := arb.Bodies()
 	enemyEntry, eok := enemyBody.UserData.(*donburi.Entry)
 	playerEntry, pok := playerBody.UserData.(*donburi.Entry)
 	var livingData *comp.CharacterData
+
 	if eok && pok {
 
 		if playerEntry.Valid() && enemyEntry.Valid() {
 			if playerEntry.HasComponent(comp.Char) && enemyEntry.HasComponent(comp.Damage) && playerEntry.HasComponent(comp.Render) {
 				livingData = comp.Char.Get(playerEntry)
 				comp.Render.Get(playerEntry).ScaleColor = colornames.Red
-				livingData.Health -= *comp.Damage.Get(enemyEntry)
-				// livingData.Health -= donburi.GetValue[float64](enemyEntry, comp.Damage)
+				livingData.Health -= *comp.Damage.Get(enemyEntry) / 60.0
 				if livingData.Health < 0 {
 					DestroyBodyWithEntry(playerBody)
 				}
@@ -200,6 +201,31 @@ func enemyPlayerPostSolve(arb *cm.Arbiter, space *cm.Space, userData interface{}
 
 	}
 
+}
+
+// Enemy <-> Player Begin
+func enemyPlayerBegin(arb *cm.Arbiter, space *cm.Space, userData interface{}) bool {
+	enemyBody, playerBody := arb.Bodies()
+	enemyEntry, eok := enemyBody.UserData.(*donburi.Entry)
+	playerEntry, pok := playerBody.UserData.(*donburi.Entry)
+	var livingData *comp.CharacterData
+
+	if eok && pok {
+
+		if playerEntry.Valid() && enemyEntry.Valid() {
+			if playerEntry.HasComponent(comp.Char) && enemyEntry.HasComponent(comp.Damage) && playerEntry.HasComponent(comp.Render) {
+				livingData = comp.Char.Get(playerEntry)
+				comp.Render.Get(playerEntry).ScaleColor = colornames.Red
+				playerBody.ApplyImpulseAtLocalPoint(arb.Normal().Mult(1000), playerBody.CenterOfGravity())
+				livingData.Health -= *comp.Damage.Get(enemyEntry)
+				if livingData.Health < 0 {
+					DestroyBodyWithEntry(playerBody)
+				}
+			}
+		}
+
+	}
+	return true
 }
 
 // Enemy <-> Player Sep

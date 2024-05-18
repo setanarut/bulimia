@@ -66,7 +66,6 @@ func SpawnEnemy(m, e, f, r float64, pos cm.Vec2) *donburi.Entry {
 	entry.AddComponent(comp.Damage)
 	entry.AddComponent(comp.Inventory)
 	comp.Inventory.Set(entry, &comp.InventoryData{Bombs: 0, Foods: 0, Keys: make([]int, 0)})
-	comp.Damage.SetValue(entry, 0.1)
 
 	render := comp.Render.Get(entry)
 	char := comp.Char.Get(entry)

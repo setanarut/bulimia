@@ -106,7 +106,7 @@ var Char = donburi.NewComponentType[CharacterData](CharacterData{
 	FoodPerCooldown:    1,
 })
 
-var Damage = donburi.NewComponentType[float64](20.0)
+var Damage = donburi.NewComponentType[float64](25.0)
 
 // Tags
 var PlayerTag = donburi.NewTag()
