@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<head>
+
+    <meta charset="UTF-8" />
+    <style>
+        body {
+            margin: 0;
+            background-color: rgb(0, 0, 0);
+            color: rgb(255, 217, 0);
+        }
+
+        div.container {
+            text-align: center;
+        }
+
+        kbd {
+            color: white;
+            font-size: 18px;
+        }
+
+        ul.myUL {
+            display: inline-block;
+            text-align: left;
+        }
+
+        @media only screen and (max-width: 800px) {
+
+            .gameWrapper {
+                position: relative;
+                padding-bottom: 56.25%;
+                /* 16:9 */
+                padding-top: 0px;
+                height: 0;
+            }
+
+            .gameWrapper iframe {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+            }
+        }
+    </style>
+
+    <title>Document</title>
+</head>
+
+<body>
+    <p align="center"><img
+            src="https://github.com/setanarut/bulimia/assets/36481442/63e8b69e-3675-4d27-bf09-918076153b81"
+            alt="bulimia_logo" /></p>
+            
+    <div class="gameWrapper" align="center">
+        <iframe width="800" height="600" src="main.html" frameborder="0"></iframe>
+    </div>
+
+    <div align="center">
+        <p>Open source top-down 2D game prototype | v0.2.1 </p>
+
+        <div class="container">
+            <h3>Controls</h3>
+            <ul class="myUL">
+                <li>Movement: <kbd>WASD</kbd></li>
+                <li>Shooting: <kbd>Arrow Keys</kbd></li>
+                <li>Use Drug: <kbd>Space</kbd></li>
+                <li>Drop Bomb: <kbd>Right Shift</kbd></li>
+                <li>Detonate bombs: <kbd>Enter</kbd></li>
+                <li>Spawn enemies: <kbd>F</kbd></li>
+                <li>Enemy AI on/off: <kbd>C</kbd></li>
+            </ul>
+        </div>
+    </div>
+
+</body>
+
+</html>
